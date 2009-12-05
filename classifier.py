@@ -7,20 +7,35 @@ class Classifier:
         self.lab = lab
 
     def retrieve_sub(self, ds, k):
-        res = {}
+        sub = {}        # Stored as a dictionary for speed reasons 
         for l in ds:
             if l[0] != '>' and l != '\n':
-                self.add_sub(res, l, k)
+                self.add_sub(sub, l, k)
         ds.close()
-        return res
+        res = sub.keys()
+        res.sort()
+        return res      # Returned a list of keys, sorted
 
     def add_sub(self, kgr, l, k):
         for i in range(len(l)):
             tmp = l[i : i + k]
             if len(tmp) == k:
-                if kgr.has_key(tmp):
-                    kgr[tmp] += 1
-                else:
-                    kgr[tmp] = 1
+                if not kgr.has_key(tmp):
+                    kgr[tmp] = True
 
+    def to_vector(self, p):
+        res = []
+        for k in self.kgr:
+            res.append(p.count(k))
+        return res
 
+    def to_vector2(self, p):
+        res = []
+        tmp = {}
+        self.add_sub(tmp, p, self.k)
+        for i in self.kgr:
+            if tmp.has_key(i):
+                res.append(i)
+        return res
+        
+            
