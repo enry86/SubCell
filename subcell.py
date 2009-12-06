@@ -1,5 +1,16 @@
 #!/usr/bin/python
+'''
+SubCell - Subcellular Proteine Localization learning algorithm
 
+Usage:
+    ./subcell.py <dataset_dir> [OPTIONS]
+
+Options:
+    -h  prints this help
+    -t  training dataset percentage (float value)
+    -v  validation dataset percentage (float value)
+    -k  k-gram dimension list (ex. -k 2,3)
+'''
 import sys
 import os
 import classifier
@@ -13,12 +24,15 @@ def read_opts(argv):
     res['v'] = 0.2
     res['k'] = [3]
     try:
-        opts, args = getopt.gnu_getopt(argv, 't:v:k:')
+        opts, args = getopt.gnu_getopt(argv, 't:v:k:h')
     except getopt.GetoptError, err:
         print str(err)
         sys.exit(2)
     for o, v in opts:
-        if o == '-t':
+        if o == '-h':
+            print __doc__
+            sys.exit(0)
+        elif o == '-t':
             try:
                 res['t'] = float(v)
             except ValueError:
@@ -42,6 +56,7 @@ def read_opts(argv):
         res['ds_dir'] = args[1]
     except IndexError:
         print 'ERR: No dataset provided'
+        print __doc__
         sys.exit(2)
     if res['ds_dir'][-1] != '/':
         res['ds_dir'] += '/'
