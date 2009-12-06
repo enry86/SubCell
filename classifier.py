@@ -16,26 +16,22 @@ class Classifier:
         res.sort()
         return res      # Returned a list of keys, sorted
 
-    def add_sub(self, kgr, l, k):
-        for i in range(len(l)):
-            tmp = l[i : i + k]
-            if len(tmp) == k:
-                if not kgr.has_key(tmp):
-                    kgr[tmp] = True
+    def add_sub(self, kgr, l, k_list):
+        for k in k_list:
+            for i in range(len(l) - (k - 1)):
+                tmp = l[i : i + k]
+                if kgr.has_key(tmp):
+                    kgr[tmp] += 1
+                else:
+                    kgr[tmp] = 1
 
     def to_vector(self, p):
-        res = []
-        for k in self.kgr:
-            res.append(p.count(k))
-        return res
-
-    def to_vector2(self, p):
-        res = []
+        res = {}
         tmp = {}
         self.add_sub(tmp, p, self.k)
-        for i in self.kgr:
-            if tmp.has_key(i):
-                res.append(i)
+        for i in range(len(self.kgr)):
+            if tmp.has_key(self.kgr[i]):
+                res[i] = tmp[self.kgr[i]]
         return res
         
             
