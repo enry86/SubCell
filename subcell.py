@@ -5,6 +5,7 @@ import os
 import classifier
 import time
 import getopt
+import random
 
 def read_opts(argv):
     res = {}
@@ -46,14 +47,52 @@ def read_opts(argv):
         res['ds_dir'] += '/'
     return res   
 
+def clean_tmp():
+    old = os.listdir('.tmp')
+    for o in old:
+        os.remove('.tmp/' + o)
 
+
+def split_dataset(ds_dir, ds_names, t, v):
+    r = random.Random()
+    try:
+        os.mkdir('.tmp')
+    except OSError:
+        clean_tmp()
+    for n in ds_names:
+        src = open(ds_dir + n, 'r')
+        dst_trn = open('.tmp/' + n + '.trn', 'w')
+        dst_val = open('.tmp/' + n + '.val', 'w')
+        dst_tst = open('.tmp/' + n + '.tst', 'w')
+        tmp = src.readline()
+        while tmp != '':
+            if tmp != '\n':
+                rnd = r.uniform(0,1)
+                if rnd < t:
+                    dst = dst_trn
+                elif rnd < t + v:
+                    dst = dst_val
+                else:
+                    dst = dst_tst
+                dst.write(tmp)
+                tmp = src.readline()
+                dst.write(tmp)
+            tmp = src.readline()
+        dst_trn.close()
+        dst_val.close()
+        dst_tst.close()
+        src.close()
+
+    
 
         
 def init_classifier(ds_names, ds_dir, k):
     cls = []
     i = 0
     for d in ds_names:
-        cls.append(classifier.Classifier(open(ds_dir + d, 'r'), k, d))
+        ds = open(ds_dir + d + '.trn', 'r')
+        cls.append(classifier.Classifier(ds, k, d))
+        ds.close()
         print len(cls[i].kgr), cls[i].lab
         i += 1
     return cls
@@ -63,11 +102,14 @@ def init_classifier(ds_names, ds_dir, k):
 def main():
     conf = read_opts(sys.argv)
     ds_n = os.listdir(conf['ds_dir'])
-    cls = init_classifier(ds_n, conf['ds_dir'], conf['k'])
-    print 'Testing vectorial representation:'
-    str = time.time()
+    split_dataset(conf['ds_dir'], ds_n, conf['t'], conf['v'])
+    cls = init_classifier(ds_n, '.tmp/', conf['k'])
+    #print 'Testing vectorial representation:'
+    #str = time.time()
     #test_repr(cls[0])
-    print 'Test done in', time.time() - str
+    #print 'Test done in', time.time() - str
+    clean_tmp()
+    os.removedirs('.tmp')
 
 def test_repr(c):
     f = open(sys.argv[1] + c.lab, 'r')
