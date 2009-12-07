@@ -70,6 +70,7 @@ def clean_tmp():
 
 def split_dataset(ds_dir, ds_names, t, v):
     r = random.Random()
+        ds.close()
     try:
         os.mkdir('.tmp')
     except OSError:
