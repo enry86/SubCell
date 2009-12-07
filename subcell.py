@@ -119,15 +119,15 @@ def main():
     ds_n = os.listdir(conf['ds_dir'])
     split_dataset(conf['ds_dir'], ds_n, conf['t'], conf['v'])
     cls = init_classifier(ds_n, '.tmp/', conf['k'])
-    #print 'Testing vectorial representation:'
-    #str = time.time()
-    #test_repr(cls[0])
-    #print 'Test done in', time.time() - str
+    print 'Testing vectorial representation:'
+    str = time.time()
+    test_repr(cls[0],'.tst')
+    print 'Test done in', time.time() - str
     clean_tmp()
     os.removedirs('.tmp')
 
-def test_repr(c):
-    f = open(sys.argv[1] + c.lab, 'r')
+def test_repr(c, ds):
+    f = open('.tmp/' + c.lab + ds, 'r')
     rep = []
     for l in f:
         if l[0] != '>' and l[0] != '\n':
