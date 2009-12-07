@@ -108,7 +108,7 @@ def init_classifier(ds_names, ds_dir, k):
         ds = open(ds_dir + d + '.trn', 'r')
         cls.append(classifier.Classifier(ds, k, d))
         ds.close()
-        print len(cls[i].kgr), cls[i].lab
+        print len(cls[i].kgr),'k-grams in dataset', cls[i].lab
         i += 1
     return cls
 
@@ -118,11 +118,13 @@ def main():
     conf = read_opts(sys.argv)
     ds_n = os.listdir(conf['ds_dir'])
     split_dataset(conf['ds_dir'], ds_n, conf['t'], conf['v'])
+    print 'Classifiers initialization:'
     cls = init_classifier(ds_n, '.tmp/', conf['k'])
-    print 'Testing vectorial representation:'
-    str = time.time()
-    test_repr(cls[0],'.tst')
-    print 'Test done in', time.time() - str
+    print '\nTesting vectorial representation:'
+    for c in cls:
+        str = time.time()
+        test_repr(c,'.tst')
+        print 'Test done in', time.time() - str, c.lab
     clean_tmp()
     os.removedirs('.tmp')
 
