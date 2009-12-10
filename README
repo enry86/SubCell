@@ -1,1 +1,3 @@
 Machine learning algorithm for protein subcellular localization
+
+Protein localization is important as protein function may be localized to specific areas inside the cell or within cellular organelles. These bioinformatic programs and databases contain information and are able to predict where a protein may be localized based on signal sequences or localization sequences contained within the protein.
