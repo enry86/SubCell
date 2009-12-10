@@ -125,7 +125,7 @@ def main():
         str = time.time()
         test_repr(c,'.tst')
         print 'Test done in', time.time() - str, c.lab
-    #clean_tmp()
+    clean_tmp()
     os.removedirs('.tmp')
 
 def test_repr(c, ds):
