@@ -31,6 +31,7 @@ class Classifier:
         for i in range(len(self.kgr)):
             if tmp.has_key(self.kgr[i]):
                 res[i] = tmp[self.kgr[i]]
+        print res
         return res
         
             
