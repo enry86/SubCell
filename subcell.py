@@ -13,7 +13,7 @@ Options:
 '''
 import sys
 import os
-import classifier
+import skernel
 import time
 import getopt
 import random
@@ -101,16 +101,16 @@ def split_dataset(ds_dir, ds_names, t, v):
     
 
         
-def init_classifier(ds_names, ds_dir, k):
-    cls = []
+def init_str_kernel(ds_names, ds_dir, k):
+    krns = []
     i = 0
     for d in ds_names:
         ds = open(ds_dir + d + '.trn', 'r')
-        cls.append(classifier.Classifier(ds, k, d))
+        krns.append(skernel.StrKernel(ds, k, d))
         ds.close()
-        print len(cls[i].kgr),'k-grams in dataset', cls[i].lab
+        print len(krns[i].kgr),'k-grams in dataset', krns[i].lab
         i += 1
-    return cls
+    return krns
 
 
 
@@ -119,9 +119,9 @@ def main():
     ds_n = os.listdir(conf['ds_dir'])
     split_dataset(conf['ds_dir'], ds_n, conf['t'], conf['v'])
     print 'Classifiers initialization:'
-    cls = init_classifier(ds_n, '.tmp/', conf['k'])
+    krns = init_str_kernel(ds_n, '.tmp/', conf['k'])
     print '\nTesting vectorial representation:'
-    for c in cls:
+    for c in krns:
         str = time.time()
         test_repr(c,'.tst')
         print 'Test done in', time.time() - str, c.lab

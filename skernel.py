@@ -1,6 +1,6 @@
-'''Classifier core functions and classes'''
+'''String Kernel core functions'''
 
-class Classifier:
+class StrKernel:
     def __init__(self, ds, k_list, lab):
         self.kgr = self.retrieve_sub(ds, k_list)
         self.k_list = k_list
