@@ -6,6 +6,7 @@ class StrKernel:
         self.k_list = k_list
         self.lab = lab
 
+
     def retrieve_sub(self, ds, k_list):
         sub = {}        # Stored as a dictionary for speed reasons 
         for l in ds:
@@ -14,6 +15,7 @@ class StrKernel:
         res = sub.keys()
         res.sort()
         return res      # Returned a list of keys, sorted
+
 
     def add_sub(self, kgr, l, k_list):
         for k in k_list:
@@ -24,6 +26,7 @@ class StrKernel:
                 else:
                     kgr[tmp] = 1
 
+
     def to_vector(self, p):
         res = {}
         tmp = {}
@@ -32,5 +35,5 @@ class StrKernel:
             if tmp.has_key(self.kgr[i]):
                 res[i] = tmp[self.kgr[i]]
         return res
-        
-            
+
+

@@ -1,4 +1,5 @@
 #!/usr/bin/python
+
 '''
 SubCell - Subcellular Proteine Localization learning algorithm
 
@@ -11,12 +12,14 @@ Options:
     -v  validation dataset percentage (float value)
     -k  k-gram dimension list (ex. -k 2,3)
 '''
+
 import sys
 import os
 import skernel
 import time
 import getopt
 import random
+
 
 def read_opts(argv):
     res = {}
@@ -62,6 +65,7 @@ def read_opts(argv):
         res['ds_dir'] += '/'
     return res   
 
+
 def clean_tmp():
     old = os.listdir('.tmp')
     for o in old:
@@ -97,10 +101,8 @@ def split_dataset(ds_dir, ds_names, t, v):
         dst_val.close()
         dst_tst.close()
         src.close()
-
-    
-
         
+
 def init_str_kernel(ds_names, ds_dir, k):
     krns = []
     i = 0
@@ -112,6 +114,13 @@ def init_str_kernel(ds_names, ds_dir, k):
         i += 1
     return krns
 
+
+def test_repr(c, ds):
+    f = open('.tmp/' + c.lab + ds, 'r')
+    rep = []
+    for l in f:
+        if l[0] != '>' and l[0] != '\n':
+            rep.append(c.to_vector(l))
 
 
 def main():
@@ -128,12 +137,6 @@ def main():
     clean_tmp()
     os.removedirs('.tmp')
 
-def test_repr(c, ds):
-    f = open('.tmp/' + c.lab + ds, 'r')
-    rep = []
-    for l in f:
-        if l[0] != '>' and l[0] != '\n':
-            rep.append(c.to_vector(l))
 
 if __name__ == "__main__":
     main()
