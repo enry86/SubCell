@@ -1,4 +1,5 @@
 #!/usr/bin/python
+
 '''
 SubCell - Subcellular Proteine Localization learning algorithm
 
@@ -11,12 +12,14 @@ Options:
     -v  validation dataset percentage (float value)
     -k  k-gram dimension list (ex. -k 2,3)
 '''
+
 import sys
 import os
-import classifier
+import skernel
 import time
 import getopt
 import random
+
 
 def read_opts(argv):
     res = {}
@@ -62,6 +65,7 @@ def read_opts(argv):
         res['ds_dir'] += '/'
     return res   
 
+
 def clean_tmp():
     old = os.listdir('.tmp')
     for o in old:
@@ -97,36 +101,19 @@ def split_dataset(ds_dir, ds_names, t, v):
         dst_val.close()
         dst_tst.close()
         src.close()
-
-    
-
         
-def init_classifier(ds_names, ds_dir, k):
-    cls = []
+
+def init_str_kernel(ds_names, ds_dir, k):
+    krns = []
     i = 0
     for d in ds_names:
         ds = open(ds_dir + d + '.trn', 'r')
-        cls.append(classifier.Classifier(ds, k, d))
+        krns.append(skernel.StrKernel(ds, k, d))
         ds.close()
-        print len(cls[i].kgr),'k-grams in dataset', cls[i].lab
+        print len(krns[i].kgr),'k-grams in dataset', krns[i].lab
         i += 1
-    return cls
+    return krns
 
-
-
-def main():
-    conf = read_opts(sys.argv)
-    ds_n = os.listdir(conf['ds_dir'])
-    split_dataset(conf['ds_dir'], ds_n, conf['t'], conf['v'])
-    print 'Classifiers initialization:'
-    cls = init_classifier(ds_n, '.tmp/', conf['k'])
-    print '\nTesting vectorial representation:'
-    for c in cls:
-        str = time.time()
-        test_repr(c,'.tst')
-        print 'Test done in', time.time() - str, c.lab
-    clean_tmp()
-    os.removedirs('.tmp')
 
 def test_repr(c, ds):
     f = open('.tmp/' + c.lab + ds, 'r')
@@ -134,6 +121,22 @@ def test_repr(c, ds):
     for l in f:
         if l[0] != '>' and l[0] != '\n':
             rep.append(c.to_vector(l))
+
+
+def main():
+    conf = read_opts(sys.argv)
+    ds_n = os.listdir(conf['ds_dir'])
+    split_dataset(conf['ds_dir'], ds_n, conf['t'], conf['v'])
+    print 'Classifiers initialization:'
+    krns = init_str_kernel(ds_n, '.tmp/', conf['k'])
+    print '\nTesting vectorial representation:'
+    for c in krns:
+        str = time.time()
+        test_repr(c,'.tst')
+        print 'Test done in', time.time() - str, c.lab
+    clean_tmp()
+    os.removedirs('.tmp')
+
 
 if __name__ == "__main__":
     main()

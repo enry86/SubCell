@@ -1,10 +1,11 @@
-'''Classifier core functions and classes'''
+'''String Kernel core functions'''
 
-class Classifier:
+class StrKernel:
     def __init__(self, ds, k_list, lab):
         self.kgr = self.retrieve_sub(ds, k_list)
         self.k_list = k_list
         self.lab = lab
+
 
     def retrieve_sub(self, ds, k_list):
         sub = {}        # Stored as a dictionary for speed reasons 
@@ -15,6 +16,7 @@ class Classifier:
         res.sort()
         return res      # Returned a list of keys, sorted
 
+
     def add_sub(self, kgr, l, k_list):
         for k in k_list:
             for i in range(len(l) - (k - 1)):
@@ -24,6 +26,7 @@ class Classifier:
                 else:
                     kgr[tmp] = 1
 
+
     def to_vector(self, p):
         res = {}
         tmp = {}
@@ -32,5 +35,5 @@ class Classifier:
             if tmp.has_key(self.kgr[i]):
                 res[i] = tmp[self.kgr[i]]
         return res
-        
-            
+
+
