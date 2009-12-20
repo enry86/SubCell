@@ -20,7 +20,7 @@ class Classifier:
         # Definition of the problem wrt training examples
         self.problem = svm_problem(self.labels, self.training)
 
-    def training(self):
+    def train(self):
         '''
             Train the SVM defined by problem  with the parameters given
         '''
@@ -42,8 +42,11 @@ class Classifier:
         '''
             param:  if 0, then no paramters will be used;
                     dicts of paramters:
-                        C   "stands for the C regulation paramter"
-                        
+                        C   "stands for the C regulation paramter" 
         '''
 
     def tuning(self, parameter):
+        '''
+            paramter:   paramters t tweak
+        '''
+

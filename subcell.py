@@ -19,7 +19,7 @@ import skernel
 import time
 import getopt
 import random
-
+import classifier
 
 def read_opts(argv):
     res = {}
@@ -121,7 +121,43 @@ def test_repr(c, ds):
     for l in f:
         if l[0] != '>' and l[0] != '\n':
             rep.append(c.to_vector(l))
-    print rep
+    return rep
+
+
+def init_classifier(krns, ds_n):
+    # SVM one-vs-all
+    svmova = []
+    startt = time.time()
+    for k in krns:
+        labels = []
+        trn_ds = test_repr(k, '.trn')
+        val_ds = test_repr(k, '.val')
+        end_positive = len(trn_ds)
+        for i in krns:
+            if i!=k:
+                trn_ds = trn_ds + test_repr(i, '.trn')
+                val_ds = val_ds + test_repr(i, '.val')
+        for j in xrange(len(trn_ds)):
+            if j <= end_positive:
+                labels.append(1)
+            else:
+                labels.append(0)
+        # A questo punto abbiamo una serie di labels che indicizzano gli
+        # esempi per un certo ds k.
+        svm_k = classifier.Classifier(labels,trn_ds,val_ds)
+        print "Classifier for %s initialized" % (k.lab)
+        svmova.append(svm_k)
+    print "Classifier initialized in %d seconds" % (time.time() - startt)
+    print "There are %d samples for training and %d samples for validation" % (len(trn_ds), len(val_ds))
+    return svmova 
+
+
+def train(svmova):
+    startt = time.time()
+    for svm in svmova:
+        svm.train()
+    print "Classifier trained in %d seconds" % (time.time() - startt)
+
 
 def main():
     conf = read_opts(sys.argv)
@@ -134,6 +170,11 @@ def main():
         str = time.time()
         test_repr(c,'.tst')
         print 'Test done in', time.time() - str, c.lab
+    # Init SVM one-vs-all approach
+    svm = init_classifier(krns, ds_n)
+    # Train SVM
+    train(svm)
+
     clean_tmp()
     os.removedirs('.tmp')
 
