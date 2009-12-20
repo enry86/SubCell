@@ -121,7 +121,7 @@ def test_repr(c, ds):
     for l in f:
         if l[0] != '>' and l[0] != '\n':
             rep.append(c.to_vector(l))
-
+    print rep
 
 def main():
     conf = read_opts(sys.argv)
