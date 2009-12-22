@@ -16,7 +16,8 @@ class Classifier:
         # To disable output messages from the library
         svmc.svm_set_quiet()
         # Definition of standard parameters for SVM
-        self.parameters = svm_parameter(C = 1, kernel_type = LINEAR)
+        self.parameters = svm_parameter(C = 1, kernel_type = RBF, probability \
+                = 1)
         # Definition of the problem wrt training examples
         self.problem = svm_problem(self.labels, self.training)
 
@@ -33,8 +34,8 @@ class Classifier:
             returns:     [ prediction, probability ]
         '''
         # Return: class_prediction + probability of prediction  
-        prediction = []
-        prediction[0], prediction[1] = self.model.predict_probability(sample)
+        #prediction = self.model.predict(sample)
+        prediction = self.model.predict_probability(sample)
         return prediction
 
 

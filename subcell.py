@@ -156,7 +156,7 @@ def train(svmova):
     startt = time.time()
     for svm in svmova:
         svm.train()
-    print "Classifier trained in %d seconds" % (time.time() - startt)
+    print "SVM trained in %d seconds" % (time.time() - startt)
 
 
 def main():
@@ -174,7 +174,15 @@ def main():
     svm = init_classifier(krns, ds_n)
     # Train SVM
     train(svm)
-
+    # Prepare a sample
+    sample = test_repr(krns[0],'.tst')[42]
+    # Classify
+    startt = time.time()
+    result = svm[0].classify(sample)
+    print "Sample",sample,"Prediction", result
+    print "Classified in ", time.time() - startt,"s"
+    #print "Sample test", sample
+    print "Dimension of the sample", len(sample)
     clean_tmp()
     os.removedirs('.tmp')
 

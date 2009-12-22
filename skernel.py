@@ -19,7 +19,7 @@ class StrKernel:
 
     def add_sub(self, kgr, l, k_list):
         for k in k_list:
-            for i in range(len(l) - (k - 1)):
+            for i in range(len(l[:-1]) - (k - 1)):
                 tmp = l[i : i + k]
                 if kgr.has_key(tmp):
                     kgr[tmp] += 1
