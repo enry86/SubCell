@@ -20,6 +20,7 @@ import time
 import getopt
 import random
 import classifier
+import classman
 
 def read_opts(argv):
     res = {}
@@ -171,9 +172,10 @@ def main():
         test_repr(c,'.tst')
         print 'Test done in', time.time() - str, c.lab
     # Init SVM one-vs-all approach
-    svm = init_classifier(krns, ds_n)
+    clm = classman.ClassMan(krns, ds_n)
+    svm = clm.init_classifier()
     # Train SVM
-    train(svm)
+    clm.train(svm, mt = True)
     # Prepare a sample
     sample = test_repr(krns[0],'.tst')[42]
     # Classify
