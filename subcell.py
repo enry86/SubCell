@@ -19,7 +19,6 @@ import skernel
 import time
 import getopt
 import random
-import classifier
 import classman
 
 def read_opts(argv):
@@ -111,80 +110,24 @@ def init_str_kernel(ds_names, ds_dir, k):
         ds = open(ds_dir + d + '.trn', 'r')
         krns.append(skernel.StrKernel(ds, k, d))
         ds.close()
-        print len(krns[i].kgr),'k-grams in dataset', krns[i].lab
+        print '\t', len(krns[i].kgr),'k-grams in dataset', krns[i].lab
         i += 1
     return krns
-
-
-def test_repr(c, ds):
-    f = open('.tmp/' + c.lab + ds, 'r')
-    rep = []
-    for l in f:
-        if l[0] != '>' and l[0] != '\n':
-            rep.append(c.to_vector(l))
-    return rep
-
-
-def init_classifier(krns, ds_n):
-    # SVM one-vs-all
-    svmova = []
-    startt = time.time()
-    for k in krns:
-        labels = []
-        trn_ds = test_repr(k, '.trn')
-        val_ds = test_repr(k, '.val')
-        end_positive = len(trn_ds)
-        for i in krns:
-            if i!=k:
-                trn_ds = trn_ds + test_repr(i, '.trn')
-                val_ds = val_ds + test_repr(i, '.val')
-        for j in xrange(len(trn_ds)):
-            if j <= end_positive:
-                labels.append(1)
-            else:
-                labels.append(0)
-        # A questo punto abbiamo una serie di labels che indicizzano gli
-        # esempi per un certo ds k.
-        svm_k = classifier.Classifier(labels,trn_ds,val_ds)
-        print "Classifier for %s initialized" % (k.lab)
-        svmova.append(svm_k)
-    print "Classifier initialized in %d seconds" % (time.time() - startt)
-    print "There are %d samples for training and %d samples for validation" % (len(trn_ds), len(val_ds))
-    return svmova 
-
-
-def train(svmova):
-    startt = time.time()
-    for svm in svmova:
-        svm.train()
-    print "SVM trained in %d seconds" % (time.time() - startt)
 
 
 def main():
     conf = read_opts(sys.argv)
     ds_n = os.listdir(conf['ds_dir'])
     split_dataset(conf['ds_dir'], ds_n, conf['t'], conf['v'])
-    print 'Classifiers initialization:'
+    print 'Kernels initialization:'
     krns = init_str_kernel(ds_n, '.tmp/', conf['k'])
-    print '\nTesting vectorial representation:'
-    for c in krns:
-        str = time.time()
-        test_repr(c,'.tst')
-        print 'Test done in', time.time() - str, c.lab
     # Init SVM one-vs-all approach
     clm = classman.ClassMan(krns, ds_n)
-    svm = clm.init_classifier()
+    clm.init_classifier()
     # Train SVM
-    clm.train(svm, mt = True)
-    # Prepare a sample
-    sample = test_repr(krns[0],'.tst')[42]
-    # Classify
-    startt = time.time()
-    result = svm[0].classify(sample)
-    print "Sample",sample,"Prediction", result
-    print "Classified in ", time.time() - startt,"s"
-    #print "Sample test", sample
-    print "Dimension of the sample", len(sample)
+    clm.train(mt = False)
+    # perform test
+    clm.test()
     clean_tmp()
     os.removedirs('.tmp')
 

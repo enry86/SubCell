@@ -3,13 +3,15 @@
 from svm import *
 
 class Classifier:
-    def __init__(self, labels, training, validation):
+    def __init__(self, labels, training, validation, lab):
         '''
             Initialization of the problem through training data.
             labels      is a list of 0,1 that recognize each sample in the
                         training, where 1 is a positive example for the class
             training    is a dictionary
         '''
+        # Added a label field, contains the name of the dataset
+        self.lab = lab
         self.labels = labels
         self.training = training
         self.validation = validation
