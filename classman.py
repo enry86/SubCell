@@ -5,12 +5,24 @@ import time
 import threading
 
 class ClassMan:
+    '''
+        Manages the execution of the classifier
+    '''
+    
     def __init__(self, sker, names):
+        '''
+            # sker      string kernel list
+            # names     list of class names
+        '''
         self.sker = sker
         self.names = names
 
 
     def init_ds(self):
+        '''
+            reads the training and validation datasets from files and
+            stores them in a list
+        '''
         trn = []
         val = []
         lab = []
@@ -30,6 +42,9 @@ class ClassMan:
 
     
     def get_lab(self, name, lab):
+        '''
+            computes the list of labels for libsvm
+        '''
         res = []
         for l in lab:
             if name == l:
@@ -40,6 +55,9 @@ class ClassMan:
     
 
     def read_ds(self, ds, k):
+        '''
+            Utility for reading a dataset form file
+        '''
         res = []
         for l in ds:
             if l[0] != '>' and l != '\n':
@@ -48,6 +66,10 @@ class ClassMan:
         
 
     def init_classifier(self):
+        '''
+            SVM initialization, stores the list of SVM objects in a list
+            at instance level
+        '''
         svms = []
         print '\nSVM initialization:'
         startt = time.time()
@@ -62,6 +84,9 @@ class ClassMan:
 
    
     def train(self, mt):
+        '''
+            wrapper for training SVMs
+        '''
         print 'Training SVM:'
         if mt:
             self.multi_train()
@@ -70,6 +95,9 @@ class ClassMan:
 
 
     def single_train(self):
+        '''
+            triggers the training of the SVMs, single threaded
+        '''
         startt = time.time()
         for s in self.svms:
             s.train()
@@ -79,6 +107,10 @@ class ClassMan:
 
 
     def multi_train(self):
+        '''
+            triggers the training of the SVMs, with a multithreadeing
+            flavour
+        '''
         startt = time.time()
         for s in self.svms:
             tmp = threading.Thread(target = s.train)
@@ -88,6 +120,10 @@ class ClassMan:
 
     
     def classify_ds(self, ds, n):
+        '''
+            classifies the test dataset, return the number of correct and
+            wrong predictions and the nuber of total instances tested
+        '''
         total = 0
         corr = 0
         wrong = 0
@@ -110,6 +146,10 @@ class ClassMan:
 
 
     def precision(self, res):
+        '''
+            computes the precision of the classification given the result
+            tuple
+        '''
         tot = 0
         cor = 0
         for r in res:
@@ -119,6 +159,9 @@ class ClassMan:
 
 
     def test(self):
+        '''
+            Manages the execution of a test session
+        '''
         res = {}
         print 'Performing test:'
         for s in self.sker:
