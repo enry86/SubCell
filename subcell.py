@@ -22,6 +22,9 @@ import random
 import classman
 
 def read_opts(argv):
+    '''
+        commandline options parsing
+    '''
     res = {}
     res['t'] = 0.6
     res['v'] = 0.2
@@ -67,12 +70,18 @@ def read_opts(argv):
 
 
 def clean_tmp():
+    '''
+        removes the temporary files of the split dataset
+    '''
     old = os.listdir('.tmp')
     for o in old:
         os.remove('.tmp/' + o)
 
 
 def split_dataset(ds_dir, ds_names, t, v):
+    '''
+        splits the dataset according to the configuration
+    '''
     r = random.Random()
     try:
         os.mkdir('.tmp')
@@ -104,6 +113,9 @@ def split_dataset(ds_dir, ds_names, t, v):
         
 
 def init_str_kernel(ds_names, ds_dir, k):
+    '''
+        String kernel initialization
+    '''
     krns = []
     i = 0
     for d in ds_names:
