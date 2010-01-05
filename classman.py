@@ -83,6 +83,7 @@ class ClassMan:
         for s in self.svms:
             tmp = threading.Thread(target = s.train)
             tmp.start()
+            print "Starting train"
         print 'SVM trained in %s sec. (multithreading)\n' %  \
             (time.time() - startt)
 

@@ -125,7 +125,8 @@ def main():
     clm = classman.ClassMan(krns, ds_n)
     clm.init_classifier()
     # Train SVM
-    clm.train(mt = False)
+    clm.train(mt = True)
+    #clm.train(mt = True)
     # perform test
     clm.test()
     clean_tmp()

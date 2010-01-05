@@ -36,7 +36,6 @@ class Classifier:
             returns:     [ prediction, probability ]
         '''
         # Return: class_prediction + probability of prediction  
-        #prediction = self.model.predict(sample)
         prediction = self.model.predict_probability(sample)
         return prediction
 
