@@ -133,7 +133,7 @@ class ClassMan:
             best = 0.0
             cls = ''
             for s in self.svms:
-                preds[s.lab] = s.classify(d)
+                preds[s.clabel] = s.classify(d)
             for p in preds:
                 if preds[p][1][1] > best:
                     best = preds[p][1][1]
