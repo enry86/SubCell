@@ -9,7 +9,7 @@ class Classifier:
             labels      is a list of 0,1 that recognize each sample in the
                         training, where 1 is a positive example for the class
             training    is a dictionary
-            lab         name of classifier
+            clabel         name of classifier
         '''
         # Added a label field, contains the name of the dataset
         self.clabel = clabel
