@@ -19,7 +19,7 @@ class Classifier:
         # To disable output messages from the library
         svmc.svm_set_quiet()
         # Definition of standard parameters for SVM
-        self.parameters = svm_parameter(C = 100, kernel_type = RBF, probability \
+        self.parameters = svm_parameter(C = 10000, kernel_type = RBF, probability \
                 = 1)
         # Definition of the problem wrt training examples
         self.problem = svm_problem(self.labels, self.training)
