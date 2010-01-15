@@ -101,7 +101,7 @@ class ClassMan:
         startt = time.time()
         for s in self.svms:
             s.train()
-            print '\tSVM for %s trained' % s.lab
+            print '\tSVM for %s trained' % s.clabel
         print 'SVM trained in %s sec. (single thread)\n' %  \
             (time.time() - startt)
 
@@ -111,15 +111,29 @@ class ClassMan:
             triggers the training of the SVMs, with a multithreadeing
             flavour
         '''
+        thrs = []
         startt = time.time()
         for s in self.svms:
-            tmp = threading.Thread(target = s.train)
+            tmp = threading.Thread(target = self.start_train, \
+                args = (s,))
+            thrs.append(tmp)
             tmp.start()
-            print "Starting train"
+            print '\tTraining for %s started...' % s.clabel
+        for t in thrs:
+            t.join()
         print 'SVM trained in %s sec. (multithreading)\n' %  \
             (time.time() - startt)
 
     
+    def start_train(self, s):
+        '''
+            starts the training task, inserts a little gap in
+            order to permit the correct starting of the thread
+        '''
+        time.sleep(0.2)
+        s.train()
+
+
     def classify_ds(self, ds, n):
         '''
             classifies the test dataset, return the number of correct and
