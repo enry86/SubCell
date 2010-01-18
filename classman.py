@@ -25,19 +25,17 @@ class ClassMan:
         '''
         trn = []
         val = []
-        lab = []
+        t_lab = []
+        v_lab = []
         for k in self.sker:
             n = k.lab
             ds_t = open('.tmp/' + n + '.trn')
             ds_v = open('.tmp/' + n + '.val')
-            for l in ds_t:
-                if l[0] != '>' and l != '\n':
-                    trn.append(k.to_vector(l))
-                    lab.append(n)
-            val += self.read_ds(ds_v, k)
+            trn, t_lab = self.read_ds(ds_t, k, n)
+            val, v_lab = self.read_ds(ds_v, k, n)
             ds_t.close()
             ds_v.close()
-        return (lab, trn, val)
+        return (t_lab, trn, v_lab, val)
 
 
     
@@ -54,15 +52,17 @@ class ClassMan:
         return res
     
 
-    def read_ds(self, ds, k):
+    def read_ds(self, ds, k, n):
         '''
             Utility for reading a dataset form file
         '''
         res = []
+        lab = []
         for l in ds:
             if l[0] != '>' and l != '\n':
                 res.append(k.to_vector(l))
-        return res
+                lab.append(n)
+        return (res, lab)
         
 
     def init_classifier(self):
@@ -73,9 +73,10 @@ class ClassMan:
         svms = []
         print '\nSVM initialization:'
         startt = time.time()
-        lab, trn, val = self.init_ds()
+        t_lab, trn, v_lab, val = self.init_ds()
         for n in self.names:
-            tmp = classifier.Classifier(self.get_lab(n, lab), trn, val, n)
+            tmp = classifier.Classifier(self.get_lab(n, t_lab), trn, \
+                    self.get_lab(n, v_lab), val, n)
             print '\tSVM for %s initialized' % n
             svms.append(tmp)
         print 'Classifier initialized in %s sec.\n' % \
@@ -149,6 +150,7 @@ class ClassMan:
             for s in self.svms:
                 preds[s.clabel] = s.classify(d)
             for p in preds:
+                print preds, "Cat: ", p
                 if preds[p][1][1] > best:
                     best = preds[p][1][1]
                     cls = p
@@ -176,17 +178,35 @@ class ClassMan:
     def test(self):
         '''
             Manages the execution of a test session
+
+        POSSIBILE RENDERLA COME VALIDATION SOTTO?
         '''
         res = {}
         print 'Performing test:'
         for s in self.sker:
             n = s.lab
-            ds = open('.tmp/' + n + '.tst', 'r')
-            ds_l = self.read_ds(ds, s)
-            ds.close()
-            res[n] = self.classify_ds(ds_l, n)
+            ds_file = open('.tmp/' + n + '.tst', 'r')
+            ds, ds_l = self.read_ds(ds_file, s, n)
+            ds_file.close()
+            res[n] = self.classify_ds(ds, n)
             print '\t', n, ':', res[n][0], '/', res[n][2]
         pr = self.precision(res)
         print 'Precision on test dataset =', pr, '\n'
 
-   
+
+    def validation(self):
+        '''
+            Manages the execution of the validation session
+
+        MODIFICARE INSIEME A TEST...ENTRAMBE SONO INERENTI A SVMS QUINDI AI 4
+        SVM INSIEME
+        '''
+        res = {}
+        print 'Performing ' + kind + ':'
+        for svm in svms:
+            n = svm.clabel
+            res[n] = svm.validate()
+            print 't', n, ':', res[n][0], '/', res[n][2]
+        pr = self.precision(res)
+        print 'Precision on validation dataset =', pr, '\n'
+

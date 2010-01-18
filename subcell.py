@@ -137,10 +137,11 @@ def main():
     clm = classman.ClassMan(krns, ds_n)
     clm.init_classifier()
     # Train SVM
-    #clm.train(mt = True)
     clm.train(mt = True)
+    #clm.train(mt = False)
     # perform test
     clm.test()
+    clm.validation()
     clean_tmp()
     os.removedirs('.tmp')
 
