@@ -62,6 +62,7 @@ class ClassMan:
             if l[0] != '>' and l != '\n':
                 res.append(k.to_vector(l))
                 lab.append(n)
+        print lab
         return (res, lab)
         
 
