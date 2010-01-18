@@ -65,7 +65,7 @@ class Classifier:
         correct = wrong = total = 0
         for d in self.validation:
             pred = self.classify(d)
-            if pred[0] == v_labels[i]:
+            if pred[0] == self.v_labels[i]:
                 correct += 1
             else:
                 wrong += 1
