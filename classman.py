@@ -150,7 +150,6 @@ class ClassMan:
             for s in self.svms:
                 preds[s.clabel] = s.classify(d)
             for p in preds:
-                print preds, "Cat: ", p
                 if preds[p][1][1] > best:
                     best = preds[p][1][1]
                     cls = p
