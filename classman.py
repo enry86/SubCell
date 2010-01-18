@@ -31,8 +31,12 @@ class ClassMan:
             n = k.lab
             ds_t = open('.tmp/' + n + '.trn')
             ds_v = open('.tmp/' + n + '.val')
-            trn, t_lab = self.read_ds(ds_t, k, n)
-            val, v_lab = self.read_ds(ds_v, k, n)
+            tmp_d, tmp_l = self.read_ds(ds_t, k, n)
+            trn += tmp_d
+            t_lab += tmp_l
+            tmp_d, tmp_l = self.read_ds(ds_v, k, n)
+            val += tmp_d
+            v_lab += tmp_l
             ds_t.close()
             ds_v.close()
         return (t_lab, trn, v_lab, val)
@@ -150,9 +154,12 @@ class ClassMan:
             for s in self.svms:
                 preds[s.clabel] = s.classify(d)
             for p in preds:
-                if preds[p][1][1] > best:
-                    best = preds[p][1][1]
-                    cls = p
+                try:
+                    if preds[p][1][1] > best:
+                        best = preds[p][1][1]
+                        cls = p
+                except KeyError:
+                    pass
             if cls == n:
                 corr += 1
             else:
@@ -201,8 +208,7 @@ class ClassMan:
         SVM INSIEME
         '''
         res = {}
-        print 'Performing ' + kind + ':'
-        for svm in svms:
+        for svm in self.svms:
             n = svm.clabel
             res[n] = svm.validate()
             print 't', n, ':', res[n][0], '/', res[n][2]
