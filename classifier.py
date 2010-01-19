@@ -19,13 +19,15 @@ class Classifier:
         self.training = training
         self.v_labels = validation_labels
         self.validation = validation
-        
+        self.n_iterations = 5
+        self.tuning_log = None
+
         # Ranges for parameter C and gamma
         self.C_range = [pow(2,-5), pow(2,15)]            #max pow(2,15)
-        self.C_step = 10
+        self.C_step = float(self.C_range[1] - self.C_range[0])/self.n_iterations
         self.gamma_range = [pow(2,-15), pow(2,3)]       #max pow(2,3)
-        self.gamma_step = 0.710 
-        self.finer_range = { 'C': 100, 'gamma': 0.1} 
+        self.gamma_step = float(self.gamma_range[1] - self.gamma_range[0])/self.n_iterations
+        self.finer_range = { 'C': 100, 'gamma': 1} 
 
 
         ## SVM initialization
@@ -75,24 +77,31 @@ class Classifier:
         return correct, wrong, total
 
 
+    def stochastic_search(self):
+        print "Stochastic"
+
     def iterative_tuner(self, start, end, step):
         '''
             Simple function to perform the validation in two passages, the
             first has a wide range and a big step, the second has a minor
             range and a little step
         '''
+        data = []
+        best = 0.
         C = start[0]
         while C <= end[0]:
             gamma = start[1]
-            while gamma <= end[0]:
+            while gamma <= end[1]:
                 self.parameters.C = C
                 self.parameters.gamma = gamma
+                self.model = svm_model(self.problem, self.parameters)
                 print "*** TUNING: C = %f; gamma = %f" % (C, gamma)
                 c,w,t = self.validate()
                 precision = float(c)/t
                 if precision > best:
                     best = precision
                     data = [C, gamma]
+                print "Correct: %i / %i    C: %f    Gamma: %f" % (c, t, C, gamma)
                 gamma += step[1]
             C += step[0]
         return (data, best)
@@ -110,9 +119,8 @@ class Classifier:
             IMPROVEMENT: inserire parametri da riga di comando, filtrarli qui
             nei parametri
         '''
-        # Need to iterate on the possible kernels
         kernels = [LINEAR, POLY, RBF, SIGMOID]
-        # HOW TO PARALLELIZE ?
+        
         if parameter == 0:
             C = self.C_range[0] 
             gamma = self.gamma_range[0]
@@ -120,37 +128,37 @@ class Classifier:
         # for k in kernels:
         #       self.parameters.kernel = k
 
-        res = {}
-        i = 0
-        data = []
-        best = 0.
+        start = [self.C_range[0], self.gamma_range[0]]
+        end = [self.C_range[1], self.gamma_range[1]]
+        step = [self.C_step, self.gamma_step]
+        print "Validation on %s \nCoarse: C = [%f, %f], step %f, gamma = [%f, %f], step %f" \
+                % (self.clabel, start[0], end[0], step[0],\
+                start[1], end[1], step[1])
+        best_param, prec = self.iterative_tuner(start, end, step)
+        print "Best parameters found: C = %f, gamma = %fi; The precision is \
+                about %f" % (best_param[0], best_param[1], prec)
+        
+        start = [best_param[0] - self.finer_range['C'], best_param[0] + \
+                self.finer_range['C']]
+        end = [best_param[1] - self.finer_range['gamma'], best_param[1] + \
+                self.finer_range['gamma']]
+        step_C = float(end[0] - start[0])/self.n_iterations
+        step_gamma = float(end[1] - start[1])/self.n_iterations
+        step = [step_C, step_gamma]
+        print "Finer: C = [%f, %f], step %f, gamma = [%f, %f], step %f" \
+                % (self.clabel, start[0], end[0], step[0],\
+                start[1], end[1], step[1])
+        
 
-        #coarse
+    def log(self, data):
+        '''
+            Define the log function to store data in a file, default is the
+            "tuning.log"
+        '''
+        if self.tuning_log == None:
+            self.tuning_log = open("tuning.log",'w')
 
-        #finer(C, gamma)
-
-        while C <= self.C_range[1]:
-            gamma = self.gamma_range[0]
-            while gamma <= self.gamma_range[1]:
-                self.parameters.C = C
-                self.parameters.gamma = gamma
-                self.model = svm_model(self.problem, self.parameters)
-
-                print "*** TUNING: C = %f; gamma = %f" % (C, gamma)
-                c,w,t = self.validate()
-                precision = float(c)/t
-                if precision > best:
-                    best = precision
-                    data = [C, gamma]
-
-                print "Correct: %i / %i " % (c,t)
-                res.__setitem__(i, [C, gamma, float(c)/t] )
-                i += 1
-                gamma += self.gamma_step
-            C += self.C_step
-        print res
-
-        # Need to perform the last computation? (i.e. The one with C_range[1])
-
-
-
+        if data == None:
+            self.tuning_log.close()
+        else:
+            self.tuning_log.write(data)

@@ -140,9 +140,8 @@ def main():
     clm.train(mt = True)
     #clm.train(mt = False)
     # perform test
-    clm.optimization(0)
+    clm.validation(0)
     clm.test()
-    clm.validation()
     clean_tmp()
     os.removedirs('.tmp')
 

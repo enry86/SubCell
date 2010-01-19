@@ -200,36 +200,10 @@ class ClassMan:
         print 'Precision on test dataset =', pr, '\n'
 
 
-    def validation(self):
+    def validation(self, parameters):
         '''
-            Manages the execution of the validation session
-
-        MODIFICARE INSIEME A TEST...ENTRAMBE SONO INERENTI A SVMS QUINDI AI 4
-        SVM INSIEME. Sarebbe il caso di utilizzare i dataset in memoria degli
-        svm. Considerando che il validation  gia in essi presente, bisognerebbe considerare ognuno
-        '''
-        res = {}
-        print 'Performing validation:'
-        for s in self.sker:
-            n = s.lab
-            ds_file = open('.tmp/' + n + '.val', 'r')
-            ds, ds_l = self.read_ds(ds_file, s, n)
-            ds_file.close()
-            res[n] = self.classify_ds(ds, n)
-            print '\t', n, ':', res[n][0], '/', res[n][2]
-        pr = self.precision(res)
-        # for svm in self.svms:
-        #     n = svm.clabel
-        #     res[n] = self.classify_ds(svm.validation, n)
-        #     print '\t', n, ':', res[n][0], '/', res[n][2]
-        # pr = self.precision(res)
-        print 'Precision on validation dataset =', pr, '\n'
-        
-
-    def optimization(self, parameters):
-        '''
-            Manage the tuning for all the svm, passing the common fixed set of
-            paramters.
+            Manages the execution of the validation session, performing the
+            tuning for all the svm passing the common fixed set of paramters.
         '''
         for svm in self.svms:
             svm.tuning(parameters)
