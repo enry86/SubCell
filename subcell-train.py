@@ -157,7 +157,7 @@ def main():
     clm.train(mt = True)
     #clm.train(mt = False)
     # perform test
-    #clm.validation(0)
+    clm.validation(0)
     clm.test()
     to_disk(clm.svms, conf['m'])
     print 'Model saved with filename:', conf['m']

@@ -40,6 +40,14 @@ class Classifier:
         self.problem = svm_problem(self.t_labels, self.training)
 
 
+    def update_parameters(self, C, gamma):
+        '''
+            Function that update SVM parameters
+        '''
+        self.C = C
+        self.gamma = gamma
+
+
     def train(self):
         '''
             Train the SVM defined by problem  with the parameters given
@@ -95,13 +103,15 @@ class Classifier:
                 self.parameters.C = C
                 self.parameters.gamma = gamma
                 self.model = svm_model(self.problem, self.parameters)
-                print "*** TUNING: C = %f; gamma = %f" % (C, gamma)
+                line = "*** TUNING: C = %f; gamma = %f \n" % (C, gamma)
+                self.log(line)
                 c,w,t = self.validate()
                 precision = float(c)/t
                 if precision > best:
                     best = precision
                     data = [C, gamma]
-                print "Correct: %i / %i    C: %f    Gamma: %f" % (c, t, C, gamma)
+                line = "Correct: %i / %i    C: %f    Gamma: %f \n" % (c, t, C, gamma)
+                self.log(line)
                 gamma += step[1]
             C += step[0]
         return (data, best)
@@ -131,26 +141,34 @@ class Classifier:
         start = [self.C_range[0], self.gamma_range[0]]
         end = [self.C_range[1], self.gamma_range[1]]
         step = [self.C_step, self.gamma_step]
-        line = "Validation on %s \nCoarse: C = [%f, %f], step %f, gamma = [%f, %f], step %f" \
-                % (self.clabel, start[0], end[0], step[0],\
+        line = "Validation on %s \nCoarse: C = [%f, %f], step %f, gamma = \
+                [%f,  %f], step %f \n"  % (self.clabel, start[0], end[0], step[0],\
                 start[1], end[1], step[1])
-        print line
         self.log(line)
         best_param, prec = self.iterative_tuner(start, end, step)
-        print "Best parameters found: C = %f, gamma = %fi; The precision is \
-                about %f" % (best_param[0], best_param[1], prec)
-        
-        start = [best_param[0] - self.finer_range['C'], best_param[0] + \
-                self.finer_range['C']]
-        end = [best_param[1] - self.finer_range['gamma'], best_param[1] + \
-                self.finer_range['gamma']]
-        step_C = float(end[0] - start[0])/self.n_iterations
-        step_gamma = float(end[1] - start[1])/self.n_iterations
-        step = [step_C, step_gamma]
-        print "Finer: C = [%f, %f], step %f, gamma = [%f, %f], step %f" \
-                % (start[0], end[0], step[0], \
+        line = "\nBest parameters found: C = %f, gamma = %f; The precision is \
+                about %f \n" % (best_param[0], best_param[1], prec)
+        self.log(line)
+
+        start = [best_param[0] - self.finer_range['C'], \
+                best_param[0] + self.finer_range['C']]
+        end = [best_param[1] - self.finer_range['gamma'], \
+                best_param[1] + self.finer_range['gamma']]
+        C_step = float(end[0] - start[0])/self.n_iterations
+        gamma_step = float(end[1] - start[1])/self.n_iterations
+        step = [C_step, gamma_step]
+        line = "\n\n Validation on the finer range: C = [%f, %f], step %f, gamma = \
+                [%f, %f], step %f \n" % (start[0], end[0], step[0], \
                 start[1], end[1], step[1])
-        
+        self.log(line)
+        best_param, prec = self.iterative_tuner(start, end, step)
+        line = "\n\n\nBest parameters found: C = %f, gamma = %f; The precision is \
+                about %f \n" % (best_param[0], best_param[1], prec)
+        self.log(line)
+        self.log(None)
+        print line
+
+        self.update_parameters(best_param[0], best_param[1])
 
     def log(self, data):
         '''
@@ -163,4 +181,5 @@ class Classifier:
         if data == None:
             self.tuning_log.close()
         else:
+            print "Write data ", data
             self.tuning_log.write(data)
