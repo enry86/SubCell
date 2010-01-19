@@ -11,6 +11,7 @@ Options:
     -t  training dataset percentage (float value)
     -v  validation dataset percentage (float value)
     -k  k-gram dimension list (ex. -k 2,3)
+    -m  alternative filename for model
 '''
 
 import sys
@@ -29,8 +30,9 @@ def read_opts(argv):
     res['t'] = 0.6
     res['v'] = 0.2
     res['k'] = [3]
+    res['m'] = 'model'
     try:
-        opts, args = getopt.gnu_getopt(argv, 't:v:k:h')
+        opts, args = getopt.gnu_getopt(argv, 'm:t:v:k:h')
     except getopt.GetoptError, err:
         print str(err)
         sys.exit(2)
@@ -38,6 +40,8 @@ def read_opts(argv):
         if o == '-h':
             print __doc__
             sys.exit(0)
+        elif o == '-m':
+            res['m'] = v
         elif o == '-t':
             try:
                 res['t'] = float(v)
@@ -127,6 +131,16 @@ def init_str_kernel(ds_names, ds_dir, k):
     return krns
 
 
+def to_disk(svms, filename):
+    '''
+        Stores classifier to disk
+    '''
+    os.mkdir(filename)
+    for s in svms:
+        s.model.save(filename + '/' + s.clabel + '.mdl')
+
+
+
 def main():
     conf = read_opts(sys.argv)
     ds_n = os.listdir(conf['ds_dir'])
@@ -143,6 +157,8 @@ def main():
     clm.optimization(0)
     clm.test()
     clm.validation()
+    to_disk(clm.svms, conf['m'])
+    print 'Model saved with filename:', conf['m']
     clean_tmp()
     os.removedirs('.tmp')
 
