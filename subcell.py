@@ -135,7 +135,10 @@ def to_disk(svms, filename):
     '''
         Stores classifier to disk
     '''
-    os.mkdir(filename)
+    try:
+        os.mkdir(filename)
+    except OSError:
+        pass
     for s in svms:
         s.model.save(filename + '/' + s.clabel + '.mdl')
 
@@ -154,7 +157,7 @@ def main():
     clm.train(mt = True)
     #clm.train(mt = False)
     # perform test
-    clm.validation(0)
+    #clm.validation(0)
     clm.test()
     to_disk(clm.svms, conf['m'])
     print 'Model saved with filename:', conf['m']
