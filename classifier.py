@@ -131,9 +131,11 @@ class Classifier:
         start = [self.C_range[0], self.gamma_range[0]]
         end = [self.C_range[1], self.gamma_range[1]]
         step = [self.C_step, self.gamma_step]
-        print "Validation on %s \nCoarse: C = [%f, %f], step %f, gamma = [%f, %f], step %f" \
+        line = "Validation on %s \nCoarse: C = [%f, %f], step %f, gamma = [%f, %f], step %f" \
                 % (self.clabel, start[0], end[0], step[0],\
                 start[1], end[1], step[1])
+        print line
+        self.log(line)
         best_param, prec = self.iterative_tuner(start, end, step)
         print "Best parameters found: C = %f, gamma = %fi; The precision is \
                 about %f" % (best_param[0], best_param[1], prec)
@@ -146,7 +148,7 @@ class Classifier:
         step_gamma = float(end[1] - start[1])/self.n_iterations
         step = [step_C, step_gamma]
         print "Finer: C = [%f, %f], step %f, gamma = [%f, %f], step %f" \
-                % (self.clabel, start[0], end[0], step[0],\
+                % (start[0], end[0], step[0], \
                 start[1], end[1], step[1])
         
 
