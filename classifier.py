@@ -21,11 +21,12 @@ class Classifier:
         self.validation = validation
         
         # Ranges for parameter C and gamma
-        C_range = [pow(2,-5), pow(2,5)]            #max pow(2,15)
-        C_step = 10
-        gamma_range = [pow(2,-15), pow(2,-5)]       #max pow(2,3)
-        gamma_step = 0.010 
-        finer_range = { 'C': 100, 'gamma': 0.1} 
+        self.C_range = [pow(2,-5), pow(2,15)]            #max pow(2,15)
+        self.C_step = 10
+        self.gamma_range = [pow(2,-15), pow(2,3)]       #max pow(2,3)
+        self.gamma_step = 0.710 
+        self.finer_range = { 'C': 100, 'gamma': 0.1} 
+
 
         ## SVM initialization
         # To disable output messages from the library
@@ -73,6 +74,29 @@ class Classifier:
             i += 1
         return correct, wrong, total
 
+
+    def iterative_tuner(self, start, end, step):
+        '''
+            Simple function to perform the validation in two passages, the
+            first has a wide range and a big step, the second has a minor
+            range and a little step
+        '''
+        C = start[0]
+        while C <= end[0]:
+            gamma = start[1]
+            while gamma <= end[0]:
+                self.parameters.C = C
+                self.parameters.gamma = gamma
+                print "*** TUNING: C = %f; gamma = %f" % (C, gamma)
+                c,w,t = self.validate()
+                precision = float(c)/t
+                if precision > best:
+                    best = precision
+                    data = [C, gamma]
+                gamma += step[1]
+            C += step[0]
+        return (data, best)
+
         
     def tuning(self, parameter):
         '''
@@ -83,55 +107,50 @@ class Classifier:
                     Kernel  "stands for the Kernel type to use"
                     C       "stands for the C regulation parameter" 
                     gamma   "stands for the gamma kernel parameter"
+            IMPROVEMENT: inserire parametri da riga di comando, filtrarli qui
+            nei parametri
         '''
-        if param == 0:
-            C = C_range[0] 
-            gamma = gamma_range[0]
-        
-        while C <= C_range[1]:
-            while gamma <= gamma_range[1]:
+        # Need to iterate on the possible kernels
+        kernels = [LINEAR, POLY, RBF, SIGMOID]
+        # HOW TO PARALLELIZE ?
+        if parameter == 0:
+            C = self.C_range[0] 
+            gamma = self.gamma_range[0]
+       
+        # for k in kernels:
+        #       self.parameters.kernel = k
+
+        res = {}
+        i = 0
+        data = []
+        best = 0.
+
+        #coarse
+
+        #finer(C, gamma)
+
+        while C <= self.C_range[1]:
+            gamma = self.gamma_range[0]
+            while gamma <= self.gamma_range[1]:
                 self.parameters.C = C
                 self.parameters.gamma = gamma
-                    
-                gamma += gamma_step
-            C += C_step
+                self.model = svm_model(self.problem, self.parameters)
+
+                print "*** TUNING: C = %f; gamma = %f" % (C, gamma)
+                c,w,t = self.validate()
+                precision = float(c)/t
+                if precision > best:
+                    best = precision
+                    data = [C, gamma]
+
+                print "Correct: %i / %i " % (c,t)
+                res.__setitem__(i, [C, gamma, float(c)/t] )
+                i += 1
+                gamma += self.gamma_step
+            C += self.C_step
+        print res
 
         # Need to perform the last computation? (i.e. The one with C_range[1])
 
 
-    def classify_ds(self, ds, n):
-        '''
-            classifies the test dataset, return the number of correct and
-            wrong predictions and the nuber of total instances tested
-        '''
-        total = 0
-        corr = 0
-        wrong = 0
-        for d in ds:
-            pred = self.classify(d)
-            for p in preds:
-                if preds[p][1][1] > best:
-                    best = preds[p][1][1]
-                    cls = p
-            if cls == n:
-                corr += 1
-            else:
-                wrong += 1
-            total += 1
-        return (corr, wrong, total)
-        
-    def evaluate_model(self, ds_ext):
-        res = {}
-        ds = open('.tmp/' + clabel + ds_ext, 'r')
-        ds_l = self.read_ds(ds, s)
-        ds.close()
-        res = self.classify_ds(ds_l, clabel)
-        return res
 
-    def test_model(self):
-        result =  evaluate_model('.tst')
-        return result
-
-    def validate_model(self):
-        result = evaluate_model('.val')
-        return result

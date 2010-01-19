@@ -66,7 +66,6 @@ class ClassMan:
             if l[0] != '>' and l != '\n':
                 res.append(k.to_vector(l))
                 lab.append(n)
-        print lab
         return (res, lab)
         
 
@@ -206,13 +205,33 @@ class ClassMan:
             Manages the execution of the validation session
 
         MODIFICARE INSIEME A TEST...ENTRAMBE SONO INERENTI A SVMS QUINDI AI 4
-        SVM INSIEME
+        SVM INSIEME. Sarebbe il caso di utilizzare i dataset in memoria degli
+        svm. Considerando che il validation  gia in essi presente, bisognerebbe considerare ognuno
         '''
         res = {}
-        for svm in self.svms:
-            n = svm.clabel
-            res[n] = svm.validate()
-            print 't', n, ':', res[n][0], '/', res[n][2]
+        print 'Performing validation:'
+        for s in self.sker:
+            n = s.lab
+            ds_file = open('.tmp/' + n + '.val', 'r')
+            ds, ds_l = self.read_ds(ds_file, s, n)
+            ds_file.close()
+            res[n] = self.classify_ds(ds, n)
+            print '\t', n, ':', res[n][0], '/', res[n][2]
         pr = self.precision(res)
+        # for svm in self.svms:
+        #     n = svm.clabel
+        #     res[n] = self.classify_ds(svm.validation, n)
+        #     print '\t', n, ':', res[n][0], '/', res[n][2]
+        # pr = self.precision(res)
         print 'Precision on validation dataset =', pr, '\n'
+        
 
+    def optimization(self, parameters):
+        '''
+            Manage the tuning for all the svm, passing the common fixed set of
+            paramters.
+        '''
+        for svm in self.svms:
+            svm.tuning(parameters)
+            break
+            #correct, wrong, total = svm.validate()
