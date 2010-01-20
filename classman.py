@@ -27,14 +27,13 @@ class ClassMan:
         val = []
         t_lab = []
         v_lab = []
-        for k in self.sker:
-            n = k.lab
+        for n in self.names:
             ds_t = open('.tmp/' + n + '.trn')
             ds_v = open('.tmp/' + n + '.val')
-            tmp_d, tmp_l = self.read_ds(ds_t, k, n)
+            tmp_d, tmp_l = self.read_ds(ds_t, n)
             trn += tmp_d
             t_lab += tmp_l
-            tmp_d, tmp_l = self.read_ds(ds_v, k, n)
+            tmp_d, tmp_l = self.read_ds(ds_v, n)
             val += tmp_d
             v_lab += tmp_l
             ds_t.close()
@@ -56,7 +55,7 @@ class ClassMan:
         return res
     
 
-    def read_ds(self, ds, k, n):
+    def read_ds(self, ds, n):
         '''
             Utility for reading a dataset form file
         '''
@@ -64,7 +63,7 @@ class ClassMan:
         lab = []
         for l in ds:
             if l[0] != '>' and l != '\n':
-                res.append(k.to_vector(l))
+                res.append(self.sker.to_vector(l))
                 lab.append(n)
         return (res, lab)
         
@@ -189,10 +188,9 @@ class ClassMan:
         '''
         res = {}
         print 'Performing test:'
-        for s in self.sker:
-            n = s.lab
+        for n in self.names:
             ds_file = open('.tmp/' + n + '.tst', 'r')
-            ds, ds_l = self.read_ds(ds_file, s, n)
+            ds, ds_l = self.read_ds(ds_file, n)
             ds_file.close()
             res[n] = self.classify_ds(ds, n)
             print '\t', n, ':', res[n][0], '/', res[n][2]

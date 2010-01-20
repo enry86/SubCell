@@ -132,7 +132,7 @@ def init_str_kernel(ds_names, ds_dir, k):
     return krns
 
 
-def to_disk(svms, krns, filename):
+def to_disk(svms, krn, filename):
     '''
         Stores classifier to disk
     '''
@@ -142,28 +142,28 @@ def to_disk(svms, krns, filename):
         pass
     for s in svms:
         s.model.save(filename + '/' + s.clabel + '.mdl')
-    for k in krns:
-        f = open(filename + '/' + k.lab + '.krn', 'w')
-        pickle.dump(k,f)
-        f.close()
+    f = open(filename + '/' + filename + '.krn', 'w')
+    pickle.dump(krn,f)
+    f.close()
 
 
 def main():
     conf = read_opts(sys.argv)
     ds_n = os.listdir(conf['ds_dir'])
     split_dataset(conf['ds_dir'], ds_n, conf['t'], conf['v'])
-    print 'Kernels initialization:'
-    krns = init_str_kernel(ds_n, '.tmp/', conf['k'])
+    print 'Kernel initialization:'
+    krn = skernel.StrKernel(ds_n, '.tmp/', conf['k'])
+    print '\tString kernel initialized with %s k-grams' % len(krn.kgr)
     # Init SVM one-vs-all approach
-    clm = classman.ClassMan(krns, ds_n)
+    clm = classman.ClassMan(krn, ds_n)
     clm.init_classifier()
     # Train SVM
     clm.train(mt = True)
     #clm.train(mt = False)
     # perform test
-    clm.validation(0)
+    #clm.validation(0)
     clm.test()
-    to_disk(clm.svms, krns, conf['m'])
+    to_disk(clm.svms, krn, conf['m'])
     print 'Model saved with filename:', conf['m']
     clean_tmp()
     os.removedirs('.tmp')

@@ -2,35 +2,44 @@
 
 class StrKernel:
     
-    def __init__(self, ds, k_list, lab):
+    def __init__(self, ds_n, ds_d, k_list):
         '''
-            # ds        files of the dataset
+            # ds_n      filenames of the dataset
+            # ds_d      directory of the dataset
             # k_list    list of k-gram dimension
-            # lab       list of labels
         '''
-        self.kgr = self.retrieve_sub(ds, k_list)
+        
         self.k_list = k_list
-        self.lab = lab
+        files = []
+        for d in ds_n:
+            files.append(open(ds_d + d + '.trn','r'))
+        self.kgr = self.retrieve_sub(files)
+        for f in files:
+            f.close()
 
 
-    def retrieve_sub(self, ds, k_list):
+
+    def retrieve_sub(self, ds_f):
         '''
             retrieves all the substrings in the dataset
         '''
         sub = {}        # Stored as a dictionary for speed reasons 
-        for l in ds:
-            if l[0] != '>' and l != '\n':
-                self.add_sub(sub, l, k_list)
+        for f in ds_f:
+            self.read_file(f, sub)
         res = sub.keys()
         res.sort()
         return res      # Returned a list of keys, sorted
 
+    def read_file(self, f, sub):
+        for l in f:
+            if l[0] != '>' and l != '\n':
+                self.add_sub(sub, l)
 
-    def add_sub(self, kgr, l, k_list):
+    def add_sub(self, kgr, l):
         '''
             fills a dictionary with substrings count of a single protein
         '''
-        for k in k_list:
+        for k in self.k_list:
             for i in range(len(l[:-1]) - (k - 1)):
                 tmp = l[i : i + k]
                 if kgr.has_key(tmp):
@@ -46,7 +55,7 @@ class StrKernel:
         '''
         res = {}
         tmp = {}
-        self.add_sub(tmp, p, self.k_list)
+        self.add_sub(tmp, p)
         for i in range(len(self.kgr)):
             if tmp.has_key(self.kgr[i]):
                 res[i] = tmp[self.kgr[i]]
