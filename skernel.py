@@ -13,7 +13,8 @@ class StrKernel:
         files = []
         for d in ds_n:
             files.append(open(ds_d + d + '.trn','r'))
-        self.kgr = self.retrieve_sub(files)
+        tmp = self.retrieve_sub(files)
+        self.kgr = self.build_hash(tmp)
         for f in files:
             f.close()
 
@@ -46,6 +47,13 @@ class StrKernel:
                     kgr[tmp] += 1
                 else:
                     kgr[tmp] = 1
+    
+
+    def build_hash(self, kgr):
+        res = {}
+        for i in range(len(kgr)):
+            res[kgr[i]] = i
+        return res
 
 
     def to_vector(self, p):
@@ -56,9 +64,9 @@ class StrKernel:
         res = {}
         tmp = {}
         self.add_sub(tmp, p)
-        for i in range(len(self.kgr)):
-            if tmp.has_key(self.kgr[i]):
-                res[i] = tmp[self.kgr[i]]
+        for k in tmp:
+            if self.kgr.has_key(k):
+                res[self.kgr[k]] = tmp[k]
         return res
 
 
