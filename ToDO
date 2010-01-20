@@ -3,6 +3,6 @@ Validation:
 	* Fast simple (grid which stop iterations if the precision decrease)
 	* Find suitable parameters for C and gamma (C should be the max of the value assumed in the validation)
 
-Command line parameters for models
+Command line parameters for models (C, gamma, #iterations for ranges, kernel)
 
 Recall

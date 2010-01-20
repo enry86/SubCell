@@ -19,10 +19,10 @@ class Classifier:
         self.training = training
         self.v_labels = validation_labels
         self.validation = validation
-        self.n_iterations = 5
         self.tuning_log = None
 
         # Ranges for parameter C and gamma
+        self.n_iterations = 1
         self.C_range = [pow(2,-5), pow(2,15)]            #max pow(2,15)
         self.C_step = float(self.C_range[1] - self.C_range[0])/self.n_iterations
         self.gamma_range = [pow(2,-15), pow(2,3)]       #max pow(2,3)
@@ -150,21 +150,23 @@ class Classifier:
                 about %f \n" % (best_param[0], best_param[1], prec)
         self.log(line)
 
-        start = [best_param[0] - self.finer_range['C'], \
-                best_param[0] + self.finer_range['C']]
-        end = [best_param[1] - self.finer_range['gamma'], \
-                best_param[1] + self.finer_range['gamma']]
-        C_step = float(end[0] - start[0])/self.n_iterations
-        gamma_step = float(end[1] - start[1])/self.n_iterations
-        step = [C_step, gamma_step]
-        line = "\n\n Validation on the finer range: C = [%f, %f], step %f, gamma = \
-                [%f, %f], step %f \n" % (start[0], end[0], step[0], \
-                start[1], end[1], step[1])
-        self.log(line)
-        best_param, prec = self.iterative_tuner(start, end, step)
-        line = "\n\n\nBest parameters found: C = %f, gamma = %f; The precision is \
-                about %f \n" % (best_param[0], best_param[1], prec)
-        self.log(line)
+        #start = [best_param[0] - self.finer_range['C'], \
+        #        best_param[0] + self.finer_range['C']]
+        #end = [best_param[1] - self.finer_range['gamma'], \
+        #        best_param[1] + self.finer_range['gamma']]
+        #C_step = float(end[0] - start[0])/self.n_iterations
+        #gamma_step = float(end[1] - start[1])/self.n_iterations
+        #step = [C_step, gamma_step]
+        #line = "\n\n Validation on the finer range: C = [%f, %f], step %f, gamma = \
+        #        [%f, %f], step %f \n" % (start[0], end[0], step[0], \
+        #        start[1], end[1], step[1])
+        #self.log(line)
+        #best_param, prec = self.iterative_tuner(start, end, step)
+        #print "STATUS: start: ", start, "  end: ", end, "  step: ",step
+        #print "ERROR: ", best_param
+        #line = "\n\n\nBest parameters found: C = %f, gamma = %f; The precision is \
+        #        about %f \n" % (best_param[0], best_param[1], prec)
+        #self.log(line)
         self.log(None)
         print line
 
