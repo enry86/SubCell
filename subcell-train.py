@@ -21,6 +21,7 @@ import time
 import getopt
 import random
 import classman
+import pickle
 
 def read_opts(argv):
     '''
@@ -131,7 +132,7 @@ def init_str_kernel(ds_names, ds_dir, k):
     return krns
 
 
-def to_disk(svms, filename):
+def to_disk(svms, krns, filename):
     '''
         Stores classifier to disk
     '''
@@ -141,7 +142,10 @@ def to_disk(svms, filename):
         pass
     for s in svms:
         s.model.save(filename + '/' + s.clabel + '.mdl')
-
+    for k in krns:
+        f = open(filename + '/' + k.lab + '.krn', 'w')
+        pickle.dump(k,f)
+        f.close()
 
 
 def main():
@@ -159,7 +163,7 @@ def main():
     # perform test
     clm.validation(0)
     clm.test()
-    to_disk(clm.svms, conf['m'])
+    to_disk(clm.svms, krns, conf['m'])
     print 'Model saved with filename:', conf['m']
     clean_tmp()
     os.removedirs('.tmp')
