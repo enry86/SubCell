@@ -16,6 +16,14 @@ class ClassMan:
         '''
         self.sker = sker
         self.names = names
+        self.res = self.init_res()
+
+
+    def init_res(self):
+        res = {}
+        for n in self.names:
+            res[n] = [0,0,0]
+        return res
 
 
     def init_ds(self):
@@ -152,6 +160,7 @@ class ClassMan:
             cls = ''
             for s in self.svms:
                 preds[s.clabel] = s.classify(d)
+            self.update_res(self.res, preds, n)
             for p in preds:
                 try:
                     if preds[p][1][1] > best:
@@ -165,6 +174,47 @@ class ClassMan:
                 wrong += 1
             total += 1
         return (corr, wrong, total)
+
+
+    def update_res(self, res, preds, c):
+        for p in preds:
+            if p == c:
+                if preds[p][0] == 1.0:
+                    res[p][0] += 1
+                else:
+                    res[p][2] += 1
+            else:
+                if preds[p][0] == 1.0:
+                    res[p][1] += 1
+    
+    
+    def get_metrics(self):
+        met = {}
+        micro = [0,0,0]
+        for r in self.res:
+            met[r] = (self.s_precision(self.res[r]), \
+                self.s_recall(self.res[r]))
+            for k in range(len(met[r])):
+                micro[k] += met[r][k]
+        ma = (self.s_precision(micro), \
+            self.s_recall(micro))
+        return met, ma
+
+
+    def s_precision(self, res):
+        try:
+            prec = res[0] / float(res[0] + res[1])
+        except:
+            prec = 1.0
+        return prec
+
+
+    def s_recall(self, res):
+        try:
+            rec = res[0] / float(res[0] + res[2])
+        except: 
+            rec = 0.0
+        return rec        
 
 
     def precision(self, res):
