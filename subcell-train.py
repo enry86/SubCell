@@ -11,6 +11,10 @@ Options:
     -t  training dataset percentage (float value)
     -v  validation dataset percentage (float value)
     -k  k-gram dimension list (ex. -k 2,3)
+    -C  fixed C parameter for svm training
+    -g  gamma parameter for the RBF kernel
+    -n  number of iterations to validate the dataset in the optimal
+    paramters search
     -m  alternative filename for model
 '''
 
@@ -32,6 +36,9 @@ def read_opts(argv):
     res['v'] = 0.2
     res['k'] = [3]
     res['m'] = 'model'
+    res['C'] = 1
+    res['g'] = 0.1
+    res['n'] = 1
     try:
         opts, args = getopt.gnu_getopt(argv, 'm:t:v:k:h')
     except getopt.GetoptError, err:
@@ -161,7 +168,7 @@ def main():
     clm.train(mt = True)
     #clm.train(mt = False)
     # perform test
-    #clm.validation(0)
+    clm.validation(0)
     clm.test()
     to_disk(clm.svms, krn, conf['m'])
     print 'Model saved with filename:', conf['m']

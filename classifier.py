@@ -44,8 +44,8 @@ class Classifier:
         '''
             Function that update SVM parameters
         '''
-        self.C = C
-        self.gamma = gamma
+        self.parameters.C = C
+        self.parameters.gamma = gamma
 
 
     def train(self):
@@ -116,12 +116,47 @@ class Classifier:
             C += step[0]
         return (data, best)
 
+
+    def parameter_search(self, element, mode):
+        '''
+            Returns the range and the step for the research mode
+            If mode == 1, the is a finer search and check the new range is in
+            the admitted
+        '''
+        if mode == 0:
+            start = [self.C_range[0], self.gamma_range[0]]
+            end = [self.C_range[1], self.gamma_range[1]]
+            step = [self.C_step, self.gamma_step]
+        else:
+            c_start = element[0] - self.finer_range['C']
+            c_end = element[0] + self.finer_range['C']
+
+            gamma_start = element[1] - self.finer_range['gamma']
+            gamma_end = element[1] + self.finer_range['gamma']
+
+            if c_start < self.C_range[0]:
+                c_start = self.C_range[0]
+            if c_end > self.C_range[1]:
+                c_end = self.C_range[1]
+            if gamma_start < self.gamma_range[0]:
+                gamma_start = self.gamma_range[0]
+            if gamma_end > self.gamma_range[1]:
+                gamma_end = self.gamma_range[1]
+
+            start = [c_start, gamma_start]
+            end = [c_end, gamma_end]
+        
+        C_step = float(end[0] - start[0])/self.n_iterations
+        gamma_step = float(end[1] - start[1])/self.n_iterations
+        step = [C_step, gamma_step]
+        return (start, end, step)
+
         
     def tuning(self, parameter):
         '''
             Considering default kernel as RBF - for the moment is the
             simplier.
-            parameter:  if 0, then no paramters will be used;
+            parameter:  if 0, then no parameters will be used;
                 dicts of parameters:
                     Kernel  "stands for the Kernel type to use"
                     C       "stands for the C regulation parameter" 
@@ -131,16 +166,7 @@ class Classifier:
         '''
         kernels = [LINEAR, POLY, RBF, SIGMOID]
         
-        if parameter == 0:
-            C = self.C_range[0] 
-            gamma = self.gamma_range[0]
-       
-        # for k in kernels:
-        #       self.parameters.kernel = k
-
-        start = [self.C_range[0], self.gamma_range[0]]
-        end = [self.C_range[1], self.gamma_range[1]]
-        step = [self.C_step, self.gamma_step]
+        start, end, step = self.parameter_search(None, 0)
         line = "Validation on %s \nCoarse: C = [%f, %f], step %f, gamma = \
                 [%f,  %f], step %f \n"  % (self.clabel, start[0], end[0], step[0],\
                 start[1], end[1], step[1])
@@ -150,27 +176,27 @@ class Classifier:
                 about %f \n" % (best_param[0], best_param[1], prec)
         self.log(line)
 
-        #start = [best_param[0] - self.finer_range['C'], \
-        #        best_param[0] + self.finer_range['C']]
-        #end = [best_param[1] - self.finer_range['gamma'], \
-        #        best_param[1] + self.finer_range['gamma']]
-        #C_step = float(end[0] - start[0])/self.n_iterations
-        #gamma_step = float(end[1] - start[1])/self.n_iterations
-        #step = [C_step, gamma_step]
-        #line = "\n\n Validation on the finer range: C = [%f, %f], step %f, gamma = \
-        #        [%f, %f], step %f \n" % (start[0], end[0], step[0], \
-        #        start[1], end[1], step[1])
-        #self.log(line)
-        #best_param, prec = self.iterative_tuner(start, end, step)
-        #print "STATUS: start: ", start, "  end: ", end, "  step: ",step
-        #print "ERROR: ", best_param
-        #line = "\n\n\nBest parameters found: C = %f, gamma = %f; The precision is \
-        #        about %f \n" % (best_param[0], best_param[1], prec)
-        #self.log(line)
+        
+        start, end, step = self.parameter_search(best_param, 1)
+        line = "\n\n Validation on the finer range: C = [%f, %f], step %f, gamma = \
+                [%f, %f], step %f \n" % (start[0], end[0], step[0], \
+                start[1], end[1], step[1])
+        self.log(line)
+        best_param, prec = self.iterative_tuner(start, end, step)
+        print "STATUS: start: ", start, "  end: ", end, "  step: ",step
+        print "ERROR: ", best_param
+        line = "\n\n\nBest parameters found: C = %f, gamma = %f; The precision is \
+                about %f \n" % (best_param[0], best_param[1], prec)
+        self.log(line)
+
+        line  = "Setting up the model with the parameters: C = %f, gamma = %f"  \
+                % (best_param[0], best_param[1])
+        self.log(line)
+        self.update_parameters(best_param[0], best_param[1])
+        self.model = svm_model(self.problem, self.parameters)
+
         self.log(None)
         print line
-
-        self.update_parameters(best_param[0], best_param[1])
 
     def log(self, data):
         '''

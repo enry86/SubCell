@@ -6,3 +6,7 @@ Validation:
 Command line parameters for models (C, gamma, #iterations for ranges, kernel)
 
 Recall
+
+
+Questions:
+Does it perform training and the validation if it load the model?
