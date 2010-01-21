@@ -167,26 +167,28 @@ class Classifier:
         kernels = [LINEAR, POLY, RBF, SIGMOID]
         
         start, end, step = self.parameter_search(None, 0)
-        line = "Validation on %s \nCoarse: C = [%f, %f], step %f, gamma = \
-                [%f,  %f], step %f \n"  % (self.clabel, start[0], end[0], step[0],\
-                start[1], end[1], step[1])
+        print "PARAM", start, end, step
+        line = "Validation on %s \nCoarse: C = [%f, %f], step %f, gamma = " + \
+               "[%f,  %f], step %f \n"  % (self.clabel, float(start[0]),
+               float(end[0]), float(step[0]),\
+                float(start[1]), float(end[1]), float(step[1]))
         self.log(line)
         best_param, prec = self.iterative_tuner(start, end, step)
-        line = "\nBest parameters found: C = %f, gamma = %f; The precision is \
-                about %f \n" % (best_param[0], best_param[1], prec)
+        line = "\nBest parameters found: C = %f, gamma = %f; The precision is " + \
+               "about %f \n" % (float(best_param[0]), float(best_param[1]), prec)
         self.log(line)
 
         
         start, end, step = self.parameter_search(best_param, 1)
-        line = "\n\n Validation on the finer range: C = [%f, %f], step %f, gamma = \
-                [%f, %f], step %f \n" % (start[0], end[0], step[0], \
-                start[1], end[1], step[1])
+        line = "\n\n Validation on the finer range: C = [%f, %f], step %f, gamma = " + \
+               "[%f, %f], step %f \n" % (float(start[0]), float(end[0]), float(step[0]), \
+                float(start[1]), float(end[1]), float(step[1]))
         self.log(line)
         best_param, prec = self.iterative_tuner(start, end, step)
         print "STATUS: start: ", start, "  end: ", end, "  step: ",step
         print "ERROR: ", best_param
-        line = "\n\n\nBest parameters found: C = %f, gamma = %f; The precision is \
-                about %f \n" % (best_param[0], best_param[1], prec)
+        line = "\n\n\nBest parameters found: C = %f, gamma = %f; The precision\ is " + \
+               "about %f \n" % (best_param[0], best_param[1], prec)
         self.log(line)
 
         line  = "Setting up the model with the parameters: C = %f, gamma = %f"  \
