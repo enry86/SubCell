@@ -255,5 +255,4 @@ class ClassMan:
         '''
         for svm in self.svms:
             svm.tuning(parameters)
-            break
             #correct, wrong, total = svm.validate()
