@@ -154,6 +154,17 @@ def to_disk(svms, krn, filename):
     f.close()
 
 
+def output_metrics(met):
+    print 'Quality measures for each SVM:'
+    for m in met[0]:
+        print '\t' + m + ':'
+        print '\t\tPrecision:', met[0][m][0]
+        print '\t\tRecall:', met[0][m][1]
+    print '\nMicro-average:'
+    print '\tPrecision:', met[1][0]
+    print '\tRecall:', met[1][1]
+
+
 def main():
     conf = read_opts(sys.argv)
     ds_n = os.listdir(conf['ds_dir'])
@@ -168,8 +179,9 @@ def main():
     clm.train(mt = True)
     #clm.train(mt = False)
     # perform test
-    clm.validation(0)
+    #clm.validation(0)
     clm.test()
+    output_metrics(clm.get_metrics())
     to_disk(clm.svms, krn, conf['m'])
     print 'Model saved with filename:', conf['m']
     clean_tmp()
