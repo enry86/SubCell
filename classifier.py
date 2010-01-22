@@ -77,11 +77,11 @@ class Classifier:
         correct = wrong = nr = total = 0
         for d in self.validation:
             pred = self.classify(d)
-            if pred[0] == self.v_labels[i]:
+            if (pred[0] == 1) and (self.v_labels[i] == 1):
                 correct += 1
-            elif not pred[0]:
+            elif not pred[0] and (self.v_labels[i] == 1):
                 nr += 1
-            else:
+            elif self.v_labels[i] == 1:
                 wrong += 1
             total += 1
             i += 1
@@ -110,7 +110,10 @@ class Classifier:
                 line = "*** TUNING: C = %f; gamma = %f \n" % (C, gamma)
                 self.log(line)
                 c,w,nr,t = self.validate()
-                precision = float(c)/(c+w)
+                try:
+                    precision = float(c)/(c+w)
+                except:
+                    precision = 1.0
                 recall = float(c)/(c+nr)
                 print "Precision %f, Recall %f" % (precision, recall)
                 if precision > best:
