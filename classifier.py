@@ -3,6 +3,7 @@
 
 from svm import *
 import math
+import os
 
 class Classifier:
     def __init__(self, training_labels, training, validation_labels, validation, clabel):
@@ -73,16 +74,18 @@ class Classifier:
         '''
         i = 0
         pred = {}
-        correct = wrong = total = 0
+        correct = wrong = nr = total = 0
         for d in self.validation:
             pred = self.classify(d)
             if pred[0] == self.v_labels[i]:
                 correct += 1
+            elif not pred[0]:
+                nr += 1
             else:
                 wrong += 1
             total += 1
             i += 1
-        return correct, wrong, total
+        return correct, wrong, nr, total
 
 
     def stochastic_search(self):
@@ -105,10 +108,11 @@ class Classifier:
                 #self.model = svm_model(self.problem, self.parameters)
                 self.train()
                 line = "*** TUNING: C = %f; gamma = %f \n" % (C, gamma)
-                print line
                 self.log(line)
-                c,w,t = self.validate()
-                precision = float(c)/t
+                c,w,nr,t = self.validate()
+                precision = float(c)/(c+w)
+                recall = float(c)/(c+nr)
+                print "Precision %f, Recall %f" % (precision, recall)
                 if precision > best:
                     best = precision
                     data = [C, gamma]

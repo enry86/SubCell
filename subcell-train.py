@@ -177,12 +177,9 @@ def main():
     clm.init_classifier()
     # Train SVM
     clm.train(mt = True)
-    #for svm in clm.svms:
-    #    svm.parameters.C = 100
-    #    svm.parameters.gamma = 2    
-    clm.train(mt = True)
     #clm.train(mt = False)
     # perform test
+    clm.test()
     clm.validation(0)
     clm.test()
     output_metrics(clm.get_metrics())
