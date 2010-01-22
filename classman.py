@@ -192,13 +192,20 @@ class ClassMan:
         met = {}
         micro = [0,0,0]
         for r in self.res:
-            met[r] = (self.s_precision(self.res[r]), \
-                self.s_recall(self.res[r]))
-            for k in range(len(met[r])):
-                micro[k] += met[r][k]
-        ma = (self.s_precision(micro), \
-            self.s_recall(micro))
+            pr = self.s_precision(self.res[r])
+            re = self.s_recall(self.res[r])
+            fm = self.s_fmeasure(pr, re)
+            met[r] = (pr, re, fm)
+            for k in range(len(self.res[r])):
+                micro[k] += self.res[r][k]
+        p = self.s_precision(micro)
+        r = self.s_recall(micro)
+        ma = (p, r, self.s_fmeasure(p, r))
         return met, ma
+
+
+    def s_fmeasure(self, p, r):
+        return 2.0 * (p * r) / (p + r)
 
 
     def s_precision(self, res):
