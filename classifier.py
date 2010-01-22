@@ -115,9 +115,14 @@ class Classifier:
                 except:
                     precision = 1.0
                 recall = float(c)/(c+nr)
-                print "Precision %f, Recall %f" % (precision, recall)
-                if precision > best:
-                    best = precision
+                try:
+                    f_meas = 2.0 * (recall * precision) / (recall + precision)
+                except:
+                    f_meas = 0.0
+                print "Precision %f, Recall %f, F-Measure %f" \
+                    % (precision, recall, f_meas)
+                if f_meas > best:
+                    best = f_meas
                     data = [C, gamma]
                 line = "Correct: %i / %i    C: %f    Gamma: %f \n" % (c, t, C, gamma)
                 self.log(line)
@@ -182,7 +187,7 @@ class Classifier:
                 float(start[1]), float(end[1]), float(step[1]))
         self.log(line)
         best_param, prec = self.iterative_tuner(start, end, step)
-        line = ("\nBest parameters found: C = %f, gamma = %f; The precision is " + \
+        line = ("\nBest parameters found: C = %f, gamma = %f; F-Measure is " + \
                "about %f \n") % (float(best_param[0]), float(best_param[1]), prec)
         self.log(line)
 
