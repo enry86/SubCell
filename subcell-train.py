@@ -181,8 +181,8 @@ def main():
     clm.train(mt = True)
     #clm.train(mt = False)
     # perform test
-    clm.test()
-    #clm.validation(0)
+    clm.test2()
+    clm.validation(0)
     clm.test()
     output_metrics(clm.get_metrics())
     to_disk(clm.svms, krn, conf['m'])

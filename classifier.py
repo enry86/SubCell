@@ -23,7 +23,7 @@ class Classifier:
         self.tuning_log = None
 
         # Ranges for parameter C and gamma
-        self.n_iterations = 1
+        self.n_iterations = 5
         self.C_range = [pow(2,-5), pow(2,15)]            #max pow(2,15)
         self.C_step = float(self.C_range[1] - self.C_range[0])/self.n_iterations
         self.gamma_range = [pow(2,-15), pow(2,3)]       #max pow(2,3)
