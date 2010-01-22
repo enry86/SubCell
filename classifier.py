@@ -102,8 +102,10 @@ class Classifier:
             while gamma <= end[1]:
                 self.parameters.C = C
                 self.parameters.gamma = gamma
-                self.model = svm_model(self.problem, self.parameters)
+                #self.model = svm_model(self.problem, self.parameters)
+                self.train()
                 line = "*** TUNING: C = %f; gamma = %f \n" % (C, gamma)
+                print line
                 self.log(line)
                 c,w,t = self.validate()
                 precision = float(c)/t
@@ -178,32 +180,42 @@ class Classifier:
         self.log(line)
 
         
+        # Start a finer search on neighbour of the best parameter.
         start, end, step = self.parameter_search(best_param, 1)
         line = ("\n\n Validation on the finer range: C = [%f, %f], step %f, gamma = " + \
                "[%f, %f], step %f \n") % (float(start[0]), float(end[0]), float(step[0]), \
                 float(start[1]), float(end[1]), float(step[1]))
         self.log(line)
-        best_param, prec = self.iterative_tuner(start, end, step)
+        best_param_finer, prec_finer = self.iterative_tuner(start, end, step)
+        
+        # In the case the finer range founds the best parameter, it is swapped
+        if prec_finer > prec:
+            best_param = best_param_finer[:]
+        
         line = ("\n\n\nBest parameters found: C = %f, gamma = %f; The precision is " + \
                "about %f \n") % (best_param[0], best_param[1], prec)
         self.log(line)
-
         line  = "Setting up the model with the parameters: C = %f, gamma = %f"  \
                 % (best_param[0], best_param[1])
         self.log(line)
         self.update_parameters(best_param[0], best_param[1])
         self.model = svm_model(self.problem, self.parameters)
-
         self.log(None)
         print line
 
     def log(self, data):
         '''
             Define the log function to store data in a file, default is the
-            "tuning.log"
+            "tuning<class>.log"
+            In case data is None, then the log will be close.
         '''
+        try:
+            os.mkdir("log")
+        except OSError:
+            pass
+
         if self.tuning_log == None:
-            self.tuning_log = open("tuning.log",'w')
+            self.tuning_log = open("log/tuning-" + self.clabel + ".log",'w')
 
         if data == None:
             self.tuning_log.close()
