@@ -33,19 +33,26 @@ class ClassMan:
         '''
         trn = []
         val = []
+        self.tst = []
         t_lab = []
         v_lab = []
+        self.s_lab = []
         for n in self.names:
             ds_t = open('.tmp/' + n + '.trn')
             ds_v = open('.tmp/' + n + '.val')
+            ds_s = open('.tmp/' + n + '.tst')
             tmp_d, tmp_l = self.read_ds(ds_t, n)
             trn += tmp_d
             t_lab += tmp_l
             tmp_d, tmp_l = self.read_ds(ds_v, n)
             val += tmp_d
             v_lab += tmp_l
+            tmp_d, tmp_l = self.read_ds(ds_s, n)
+            self.tst += tmp_d
+            self.s_lab += tmp_l
             ds_t.close()
             ds_v.close()
+            ds_s.close()
         return (t_lab, trn, v_lab, val)
 
 
@@ -192,13 +199,20 @@ class ClassMan:
         met = {}
         micro = [0,0,0]
         for r in self.res:
-            met[r] = (self.s_precision(self.res[r]), \
-                self.s_recall(self.res[r]))
-            for k in range(len(met[r])):
-                micro[k] += met[r][k]
-        ma = (self.s_precision(micro), \
-            self.s_recall(micro))
+            pr = self.s_precision(self.res[r])
+            re = self.s_recall(self.res[r])
+            fm = self.s_fmeasure(pr, re)
+            met[r] = (pr, re, fm)
+            for k in range(len(self.res[r])):
+                micro[k] += self.res[r][k]
+        p = self.s_precision(micro)
+        r = self.s_recall(micro)
+        ma = (p, r, self.s_fmeasure(p, r))
         return met, ma
+
+
+    def s_fmeasure(self, p, r):
+        return 2.0 * (p * r) / (p + r)
 
 
     def s_precision(self, res):
@@ -228,6 +242,41 @@ class ClassMan:
             tot += res[r][2]
             cor += res[r][0]
         return float(cor) / tot
+
+
+    def test2(self):
+        c, w = self.classify_ds2()
+        print 'Correct over total (%d/%d): %f' % \
+            (c, w, float(c) / (c + w))
+    
+
+    def classify_ds2(self):
+        i = 0
+        corr = 0
+        wrong = 0
+        res = {}
+        for s in self.tst:
+            c, r = self.class_sample(s)
+            self.update_res(self.res, r, self.s_lab[i]) 
+            if c == self.s_lab[i]:
+                corr += 1
+            else:
+                wrong += 1
+            i += 1
+        return corr, wrong
+
+
+    def class_sample(self, sam):
+        best = 0.0
+        cls = ''
+        res = {}
+        for s in self.svms:
+            res[s.clabel] = s.classify(sam)
+        for r in res:
+            if res[r][1][1] > best:
+                best = res[r][1][1]
+                cls = r
+        return cls, res
 
 
     def test(self):
