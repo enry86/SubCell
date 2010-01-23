@@ -205,7 +205,7 @@ class Classifier:
         if prec_finer > prec:
             best_param = best_param_finer[:]
         
-        line = ("\n\n\nBest parameters found: C = %f, gamma = %f; The precision is " + \
+        line = ("\n\n\nBest parameters found: C = %f, gamma = %f; F-measure is " + \
                "about %f \n") % (best_param[0], best_param[1], prec)
         self.log(line)
         line  = "Setting up the model with the parameters: C = %f, gamma = %f"  \

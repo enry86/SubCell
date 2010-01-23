@@ -182,6 +182,7 @@ def main():
     #clm.train(mt = False)
     # perform test
     clm.test2()
+    output_metrics(clm.get_metrics())
     clm.validation(0)
     clm.test()
     output_metrics(clm.get_metrics())
