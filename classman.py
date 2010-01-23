@@ -212,7 +212,11 @@ class ClassMan:
 
 
     def s_fmeasure(self, p, r):
-        return 2.0 * (p * r) / (p + r)
+        try:
+            res = 2.0 * (p * r) / (p + r)
+        except:
+            res = 0.0
+        return res
 
 
     def s_precision(self, res):
