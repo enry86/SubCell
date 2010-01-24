@@ -11,7 +11,7 @@ Validation:
 
 Command line parameters for models (C, gamma, #iterations for ranges, kernel)
 
-Precision on dataset --> Cambiare nome
+Scaling  on f-measure
 
 Questions:
 Does it perform training and the validation if it load the model?
