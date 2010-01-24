@@ -5,6 +5,7 @@
 class Measure:
     '''
         Class which handles metrics computation
+        names   list of names of the svms
     '''
     
     def __init__(self, names):
