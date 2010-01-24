@@ -252,6 +252,7 @@ class Classifier:
 
         print line
         self.log(line)
+        self.parameters.kernel_type = best
         self.update_parameters(performance[best][1][0], performance[best][1][1])
         self.model = svm_model(self.problem, self.parameters)
         print "MODEL TRAINED"
