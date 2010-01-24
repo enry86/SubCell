@@ -3,6 +3,7 @@
 import classifier
 import time
 import threading
+import measure
 
 class ClassMan:
     '''
@@ -16,16 +17,8 @@ class ClassMan:
         '''
         self.sker = sker
         self.names = names
-        self.res = self.init_res()
 
-
-    def init_res(self):
-        res = {}
-        for n in self.names:
-            res[n] = [0,0,0]
-        return res
-
-
+   
     def init_ds(self):
         '''
             reads the training and validation datasets from files and
@@ -37,7 +30,6 @@ class ClassMan:
         t_lab = []
         v_lab = []
         self.s_lab = []
-        self.tst_d = {}
         for n in self.names:
             ds_t = open('.tmp/' + n + '.trn')
             ds_v = open('.tmp/' + n + '.val')
@@ -51,11 +43,9 @@ class ClassMan:
             tmp_d, tmp_l = self.read_ds(ds_s, n)
             self.tst += tmp_d
             self.s_lab += tmp_l
-            self.tst_d[n] = len(tmp_d)
             ds_t.close()
             ds_v.close()
             ds_s.close()
-        print self.tst_d
         return (t_lab, trn, v_lab, val)
 
 
@@ -156,75 +146,19 @@ class ClassMan:
         s.train()
 
 
-    def update_res(self, res, preds, c):
-        for p in preds:
-            if p == c:
-                if preds[p][0] == 1.0:
-                    res[p][0] += 1
-                else:
-                    res[p][2] += 1
-            else:
-                if preds[p][0] == 1.0:
-                    res[p][1] += 1
-    
-    
-    def get_metrics(self):
-        met = {}
-        micro = [0,0,0]
-        for r in self.res:
-            pr = self.precision(self.res[r])
-            re = self.recall(self.res[r])
-            fm = self.fmeasure(pr, re)
-            met[r] = (pr, re, fm)
-            for k in range(len(self.res[r])):
-                micro[k] += self.res[r][k]
-        p = self.precision(micro)
-        r = self.recall(micro)
-        ma = (p, r, self.fmeasure(p, r))
-        return met, ma
-
-
-    def fmeasure(self, p, r):
-        try:
-            res = 2.0 * (p * r) / (p + r)
-        except:
-            res = 0.0
-        return res
-
-
-    def precision(self, res):
-        try:
-            prec = res[0] / float(res[0] + res[1])
-        except:
-            prec = 1.0
-        return prec
-
-
-    def recall(self, res):
-        try:
-            rec = res[0] / float(res[0] + res[2])
-        except: 
-            rec = 0.0
-        return rec        
-
-
     def test(self):
-        tot = self.classify_ds()
-        return tot 
-
-    def classify_ds(self):
         i = 0
-        tot = {}
-        res = {}
-        for n in self.names:
-            tot[n] = 0
+        self.meas = measure.Measure(self.names)
         for s in self.tst:
             c, r = self.class_sample(s)
-            self.update_res(self.res, r, self.s_lab[i]) 
+            self.meas.update_res(r, self.s_lab[i]) 
             if c == self.s_lab[i]:
-                tot[self.s_lab[i]] += 1
+                cls = True
+            else:
+                cls = False
+            self.meas.update_count(cls, self.s_lab[i])
             i += 1
-        return tot
+        return self.meas
 
 
     def class_sample(self, sam):
