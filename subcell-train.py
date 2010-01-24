@@ -122,21 +122,6 @@ def split_dataset(ds_dir, ds_names, t, v):
         dst_val.close()
         dst_tst.close()
         src.close()
-        
-
-def init_str_kernel(ds_names, ds_dir, k):
-    '''
-        String kernel initialization
-    '''
-    krns = []
-    i = 0
-    for d in ds_names:
-        ds = open(ds_dir + d + '.trn', 'r')
-        krns.append(skernel.StrKernel(ds, k, d))
-        ds.close()
-        print '\t', len(krns[i].kgr),'k-grams in dataset', krns[i].lab
-        i += 1
-    return krns
 
 
 def to_disk(svms, krn, filename):
@@ -154,17 +139,24 @@ def to_disk(svms, krn, filename):
     f.close()
 
 
-def output_metrics(met):
+def output_metrics(met, tot, dim):
+    c = 0
+    t = 0
     print 'Quality measures for each SVM:'
     for m in met[0]:
         print '\t' + m + ':'
         print '\t\tPrecision:', met[0][m][0]
         print '\t\tRecall:', met[0][m][1]
         print '\t\tF-Measure:', met[0][m][2]
+        print '\t\tCorr / Tot (%d / %d): %f' \
+            % (tot[m], dim[m],  tot[m] / float(dim[m]))
+        c += tot[m]
+        t += dim[m]
     print '\nMicro-average:'
     print '\tPrecision:', met[1][0]
     print '\tRecall:', met[1][1]
     print '\tF-Measure:', met[1][2]
+    print '\tCorr / Tot (%d / %d): %f' % (c, t, c / float(t))
 
 
 def main():
@@ -179,15 +171,14 @@ def main():
     clm.init_classifier()
     # Train SVM
     clm.train(mt = True)
-    #clm.train(mt = False)
     # perform test
-    clm.test2()
-    output_metrics(clm.get_metrics())
-    clm.validation(0)
-    clm.test()
-    output_metrics(clm.get_metrics())
+    t = clm.test()
+    output_metrics(clm.get_metrics(), t, clm.tst_d)
+    #clm.validation(0)
+    t = clm.test()
+    output_metrics(clm.get_metrics(), t, clm.tst_d)
     to_disk(clm.svms, krn, conf['m'])
-    print 'Model saved with filename:', conf['m']
+    print '\nModel saved with filename:', conf['m']
     clean_tmp()
     os.removedirs('.tmp')
 
