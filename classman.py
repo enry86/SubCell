@@ -37,6 +37,7 @@ class ClassMan:
         t_lab = []
         v_lab = []
         self.s_lab = []
+        self.tst_d = {}
         for n in self.names:
             ds_t = open('.tmp/' + n + '.trn')
             ds_v = open('.tmp/' + n + '.val')
@@ -50,9 +51,11 @@ class ClassMan:
             tmp_d, tmp_l = self.read_ds(ds_s, n)
             self.tst += tmp_d
             self.s_lab += tmp_l
+            self.tst_d[n] = len(tmp_d)
             ds_t.close()
             ds_v.close()
             ds_s.close()
+        print self.tst_d
         return (t_lab, trn, v_lab, val)
 
 
@@ -153,36 +156,6 @@ class ClassMan:
         s.train()
 
 
-    def classify_ds(self, ds, n):
-        '''
-            classifies the test dataset, return the number of correct and
-            wrong predictions and the nuber of total instances tested
-        '''
-        total = 0
-        corr = 0
-        wrong = 0
-        for d in ds:
-            preds = {}
-            best = 0.0
-            cls = ''
-            for s in self.svms:
-                preds[s.clabel] = s.classify(d)
-            self.update_res(self.res, preds, n)
-            for p in preds:
-                try:
-                    if preds[p][1][1] > best:
-                        best = preds[p][1][1]
-                        cls = p
-                except KeyError:
-                    pass
-            if cls == n:
-                corr += 1
-            else:
-                wrong += 1
-            total += 1
-        return (corr, wrong, total)
-
-
     def update_res(self, res, preds, c):
         for p in preds:
             if p == c:
@@ -199,19 +172,19 @@ class ClassMan:
         met = {}
         micro = [0,0,0]
         for r in self.res:
-            pr = self.s_precision(self.res[r])
-            re = self.s_recall(self.res[r])
-            fm = self.s_fmeasure(pr, re)
+            pr = self.precision(self.res[r])
+            re = self.recall(self.res[r])
+            fm = self.fmeasure(pr, re)
             met[r] = (pr, re, fm)
             for k in range(len(self.res[r])):
                 micro[k] += self.res[r][k]
-        p = self.s_precision(micro)
-        r = self.s_recall(micro)
-        ma = (p, r, self.s_fmeasure(p, r))
+        p = self.precision(micro)
+        r = self.recall(micro)
+        ma = (p, r, self.fmeasure(p, r))
         return met, ma
 
 
-    def s_fmeasure(self, p, r):
+    def fmeasure(self, p, r):
         try:
             res = 2.0 * (p * r) / (p + r)
         except:
@@ -219,7 +192,7 @@ class ClassMan:
         return res
 
 
-    def s_precision(self, res):
+    def precision(self, res):
         try:
             prec = res[0] / float(res[0] + res[1])
         except:
@@ -227,7 +200,7 @@ class ClassMan:
         return prec
 
 
-    def s_recall(self, res):
+    def recall(self, res):
         try:
             rec = res[0] / float(res[0] + res[2])
         except: 
@@ -235,39 +208,23 @@ class ClassMan:
         return rec        
 
 
-    def precision(self, res):
-        '''
-            computes the precision of the classification given the result
-            tuple
-        '''
-        tot = 0
-        cor = 0
-        for r in res:
-            tot += res[r][2]
-            cor += res[r][0]
-        return float(cor) / tot
+    def test(self):
+        tot = self.classify_ds()
+        return tot 
 
-
-    def test2(self):
-        c, w = self.classify_ds2()
-        print 'Correct over total (%d/%d): %f' % \
-            (c, w, float(c) / (c + w))
-    
-
-    def classify_ds2(self):
+    def classify_ds(self):
         i = 0
-        corr = 0
-        wrong = 0
+        tot = {}
         res = {}
+        for n in self.names:
+            tot[n] = 0
         for s in self.tst:
             c, r = self.class_sample(s)
             self.update_res(self.res, r, self.s_lab[i]) 
             if c == self.s_lab[i]:
-                corr += 1
-            else:
-                wrong += 1
+                tot[self.s_lab[i]] += 1
             i += 1
-        return corr, wrong
+        return tot
 
 
     def class_sample(self, sam):
@@ -281,24 +238,6 @@ class ClassMan:
                 best = res[r][1][1]
                 cls = r
         return cls, res
-
-
-    def test(self):
-        '''
-            Manages the execution of a test session
-
-        POSSIBILE RENDERLA COME VALIDATION SOTTO?
-        '''
-        res = {}
-        print 'Performing test:'
-        for n in self.names:
-            ds_file = open('.tmp/' + n + '.tst', 'r')
-            ds, ds_l = self.read_ds(ds_file, n)
-            ds_file.close()
-            res[n] = self.classify_ds(ds, n)
-            print '\t', n, ':', res[n][0], '/', res[n][2]
-        pr = self.precision(res)
-        print 'Precision on test dataset =', pr, '\n'
 
 
     def validation(self, parameters):
