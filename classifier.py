@@ -23,7 +23,7 @@ class Classifier:
         self.tuning_log = None
 
         # Ranges for parameter C and gamma
-        self.n_iterations = 5
+        self.n_iterations = 2
         self.C_range = [pow(2,-5), pow(2,15)]            #max pow(2,15)
         self.C_step = float(self.C_range[1] - self.C_range[0])/self.n_iterations
         self.gamma_range = [pow(2,-15), pow(2,3)]       #max pow(2,3)
@@ -62,7 +62,6 @@ class Classifier:
             and the probability that it can be in the class 1
             returns:     [ prediction, probability ]
         '''
-        # Return: class_prediction + probability of prediction  
         prediction = self.model.predict_probability(sample)
         return prediction
 
@@ -103,9 +102,9 @@ class Classifier:
         while C <= end[0]:
             gamma = start[1]
             while gamma <= end[1]:
-                self.parameters.C = C
-                self.parameters.gamma = gamma
-                #self.model = svm_model(self.problem, self.parameters)
+                #self.parameters.C = C
+                #self.parameters.gamma = gamma
+                self.update_parameters(C, gamma)
                 self.train()
                 line = "*** TUNING: C = %f; gamma = %f \n" % (C, gamma)
                 self.log(line)
@@ -128,6 +127,11 @@ class Classifier:
                 self.log(line)
                 gamma += step[1]
             C += step[0]
+        # FIX in the case the classifier fail for whole validation
+        if data == []:
+	  mid_C = (self.C_range[1] - self.C_range[0])/2
+	  mid_gamma = (self.gamma_range[1] - self.gamma_range[0])/2
+	  data = [mid_C, mid_gamma]
         return (data, best)
 
 
@@ -178,43 +182,80 @@ class Classifier:
             IMPROVEMENT: inserire parametri da riga di comando, filtrarli qui
             nei parametri
         '''
-        kernels = [LINEAR, POLY, RBF, SIGMOID]
+        #kernels = [LINEAR, POLY, RBF, SIGMOID]
+        kernels = [POLY, RBF, SIGMOID]
+        kernels_n = ['Linear', 'Polynomial', 'RBF', 'Sigmoid']
+        performance = [None, None, None, None]
+    
+	line = ("Validation on %s") % (self.clabel)
+	self.log(line)
 
-        
-        start, end, step = self.parameter_search(None, 0)
-        line = ("Validation on %s \nCoarse: C = [%f, %f], step %f, gamma = " + \
-               "[%f,  %f], step %f \n")  % (self.clabel, float(start[0]),
-               float(end[0]), float(step[0]),\
-                float(start[1]), float(end[1]), float(step[1]))
-        self.log(line)
-        best_param, prec = self.iterative_tuner(start, end, step)
-        line = ("\nBest parameters found: C = %f, gamma = %f; F-Measure is " + \
-               "about %f \n") % (float(best_param[0]), float(best_param[1]), prec)
-        self.log(line)
+	try:
+	  for kernel in kernels:
+	      self.parameters.kernel_type = kernel
+	      print "KERNEL", kernel
+	      
+	      start, end, step = self.parameter_search(None, 0)
+	      print "PARAM:", start, end, step
+	      line = ("Kernel %s \nCoarse: C = [%f, %f], step %f, gamma = " + \
+		"[%f,  %f], step %f \n")  % (kernels_n[kernel], float(start[0]),
+		float(end[0]), float(step[0]),\
+		  float(start[1]), float(end[1]), float(step[1]))
+	      self.log(line)
+	      best_param, prec = self.iterative_tuner(start, end, step)
+	      print "BEST", best_param, prec
+	      line = ("\nBest parameters found: C = %f, gamma = %f; F-Measure is " + \
+		"about %f \n") % (float(best_param[0]), float(best_param[1]), prec)
+	      self.log(line)
 
-        
-        # Start a finer search on neighbour of the best parameter.
-        start, end, step = self.parameter_search(best_param, 1)
-        line = ("\n\n Validation on the finer range: C = [%f, %f], step %f, gamma = " + \
-               "[%f, %f], step %f \n") % (float(start[0]), float(end[0]), float(step[0]), \
-                float(start[1]), float(end[1]), float(step[1]))
-        self.log(line)
-        best_param_finer, prec_finer = self.iterative_tuner(start, end, step)
-        
-        # In the case the finer range founds the best parameter, it is swapped
-        if prec_finer > prec:
-            best_param = best_param_finer[:]
-        
-        line = ("\n\n\nBest parameters found: C = %f, gamma = %f; F-measure is " + \
-               "about %f \n") % (best_param[0], best_param[1], prec)
-        self.log(line)
-        line  = "Setting up the model with the parameters: C = %f, gamma = %f"  \
-                % (best_param[0], best_param[1])
-        self.log(line)
-        self.update_parameters(best_param[0], best_param[1])
-        self.model = svm_model(self.problem, self.parameters)
-        self.log(None)
+	  
+	      # Start a finer search on neighbour of the best parameter.
+	      start, end, step = self.parameter_search(best_param, 1)
+	      print "PARAM finer",start,end,step
+	      line = ("\n\n Validation on the finer range: C = [%f, %f], step %f, gamma = " + \
+		"[%f, %f], step %f \n") % (float(start[0]), float(end[0]), float(step[0]), \
+		  float(start[1]), float(end[1]), float(step[1]))
+	      self.log(line)
+	      best_param_finer, prec_finer = self.iterative_tuner(start, end, step)
+	  
+	      # In the case the finer range founds the best parameter, it is swapped
+	      if prec_finer > prec:
+		  best_param = best_param_finer[:]
+	  
+	      print "BEST ALL", best_param, prec
+	      line = ("\n\n\nBest parameters found: C = %f, gamma = %f; F-measure is " + \
+		"about %f \n") % (best_param[0], best_param[1], prec)
+	      self.log(line)
+	      performance[kernel] = [prec, best_param]
+	
+	  best = RBF
+	  for k in kernels:
+	    if performance[k] != None:
+	      if performance[k][0] > performance[best][0]:
+		  best = k
+		  
+	  print "BEST KERNEL:", performance[best]
+	  line  = ("Setting up the model build on the kernel %s with the parameters" + \
+		  ": C = %f, gamma = %f; F-measure is about %f") \
+		  % (kernels_n[best],performance[best][1][0], performance[best][1][1], \
+			  performance[best][0])
+	except:
+	  print "KERNEL", kernel
+	  print "START", start
+	  print "END", end
+	  print "STEP", step
+	  print "PRECISION", prec
+	  print "PARAMTERS", best_param
+	  print "FINER PRECISION %s PARAMETER %s" %(prec_finer, best_param_finer)
+	  print "PERFORMANCE", performance
+	  print "KERNELS PERFORMANCE", performance
+
         print line
+        self.log(line)
+        self.update_parameters(performance[best][1][0], performance[best][1][1])
+        self.model = svm_model(self.problem, self.parameters)
+        print "MODEL TRAINED"
+        self.log(None)
 
     def log(self, data):
         '''

@@ -308,4 +308,3 @@ class ClassMan:
         '''
         for svm in self.svms:
             svm.tuning(parameters)
-            #correct, wrong, total = svm.validate()
