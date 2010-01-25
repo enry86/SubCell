@@ -170,11 +170,11 @@ def main():
     clm = classman.ClassMan(krn, ds_n)
     clm.init_classifier()
     # Train SVM
-    clm.train(mt = True)
+    #clm.train(mt = True)
     # perform test
-    t = clm.test()
-    output_metrics(clm.get_metrics(), t, clm.tst_d)
-    #clm.validation(0)
+    #t = clm.test()
+    #output_metrics(clm.get_metrics(), t, clm.tst_d)
+    clm.validation(0)
     t = clm.test()
     output_metrics(clm.get_metrics(), t, clm.tst_d)
     to_disk(clm.svms, krn, conf['m'])

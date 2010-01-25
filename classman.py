@@ -246,4 +246,5 @@ class ClassMan:
             tuning for all the svm passing the common fixed set of paramters.
         '''
         for svm in self.svms:
+            print "Tuning of ", svm.clabel
             svm.tuning(parameters)

@@ -13,5 +13,7 @@ Command line parameters for models (C, gamma, #iterations for ranges, kernel)
 
 Scaling  on f-measure
 
+Parallelize validation
+
 Questions:
 Does it perform training and the validation if it load the model?

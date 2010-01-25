@@ -4,6 +4,7 @@
 from svm import *
 import math
 import os
+import tuner
 
 class Classifier:
     def __init__(self, training_labels, training, validation_labels, validation, clabel):
@@ -53,7 +54,7 @@ class Classifier:
         if gamma != None:
             self.parameters.gamma = gamma
         if kernel != None:
-            self.parameters.kerne_type = kernel
+            self.parameters.kernel_type = kernel
 
 
     def train(self):

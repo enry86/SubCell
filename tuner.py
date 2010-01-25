@@ -49,8 +49,8 @@ class Tuner:
         
         # FIX in the case the classifier fail for whole validation
         if data == []:
-            mid_C = (self.C_range[1] - self.C_range[0])/2
-            mid_gamma = (self.gamma_range[1] - self.gamma_range[0])/2
+            mid_C = (self.C_range[1] + self.C_range[0])/2
+            mid_gamma = (self.gamma_range[1] + self.gamma_range[0])/2
             data = [mid_C, mid_gamma]
         return (data, best)
         
@@ -122,22 +122,22 @@ class Tuner:
             IMPROVEMENT: inserire parametri da riga di comando, filtrarli qui
             nei parametri
         '''
-        kernels = [POLY, RBF, SIGMOID]
-        kernels = ['Linear', 'Polynomial', 'RBF', 'Sigmoid']
-        performance = [None, None, None, None]
+        # 1 = Polynomial; 2 = Radial Basis Function; 3 = Sigmoid 
+        kernels = [1, 2, 3]
+        kernels_n = ['Polynomial', 'RBF', 'Sigmoid']
+        performance = [None, None, None]
 
         line = ("Validation on %s") % (self.classifier.clabel)
         self.log(line)
 
         try:
             for kernel in kernels:
-		self.parameters.kernel_type = kernel
-		print "KERNEL", kernel
+	        self.classifier.parameters.kernel_type = kernel
 		
 		start, end, step = self.parameter_search(None, 0)
 		print "PARAM:", start, end, step
 		line = ("Kernel %s \nCoarse: C = [%f, %f], step %f, gamma = " + \
-		  "[%f,  %f], step %f \n")  % (kernels_n[kernel], float(start[0]),
+		  "[%f,  %f], step %f \n")  % (kernels_n[kernel - 1], float(start[0]),
 		  float(end[0]), float(step[0]),\
 		    float(start[1]), float(end[1]), float(step[1]))
 		self.log(line)
@@ -159,36 +159,39 @@ class Tuner:
 
 		# In the case the finer range founds the best parameter, it is swapped
 		if prec_finer > prec:
-		    best_param = best_param_finer[:]
+		    best_param = best_param_finer
 
 		print "BEST ALL", best_param, prec
 		line = ("\n\n\nBest parameters found: C = %f, gamma = %f; F-measure is " + \
 		  "about %f \n") % (best_param[0], best_param[1], prec)
 		self.log(line)
-		performance[kernel] = [prec, best_param]
+		performance[kernel - 1] = [prec, best_param]
 
-	    best = RBF
-	    for k in kernels:
-		if performance[k] != None:
-		  if performance[k][0] > performance[best][0]:
-		    best = k
-
-	    print "BEST KERNEL:", performance[best]
-	    line  = ("Setting up the model build on the kernel %s with the parameters" + \
-			": C = %f, gamma = %f; F-measure is about %f") \
-			% (kernels_n[best],performance[best][1][0], performance[best][1][1], \
-				performance[best][0])
-	except:
+        except e:
+            print "EXCEPTION", e
 	    print "KERNEL", kernel
 	    print "START", start
 	    print "END", end
 	    print "STEP", step
 	    print "PRECISION", prec
-	    print "PARAMTERS", best_param
+	    print "COARSE PARAMETERS", best_param
 	    print "FINER PRECISION %s PARAMETER %s" %(prec_finer, best_param_finer)
-	    print "PERFORMANCE", performance
 	    print "KERNELS PERFORMANCE", performance
+        
+        best = 0
+        for i in xrange(len(kernels)):
+            if performance[i][0] > performance[best][0]:
+                best = i
+#
+#	for k in kernels:
+#	    if performance[k] != None:
+#	        if performance[k][0] > performance[best][0]:
+#		    best = k
 
+	line  = ("Setting up the model build on the kernel %s with the parameters" + \
+		": C = %f, gamma = %f; F-measure is about %f") \
+		% (kernels_n[best],performance[best][1][0], performance[best][1][1], \
+			performance[best][0])
 	print line
 	self.log(line)
 	self.classifier.update_parameters(performance[best][1][0],performance[best][1][1],best)
