@@ -175,7 +175,7 @@ def main():
     # perform test
     m = clm.test()
     output_metrics(m)
-    #clm.validation(0)
+    clm.validation(0)
     m = clm.test()
     output_metrics(m)
     to_disk(clm.svms, krn, conf['m'])
