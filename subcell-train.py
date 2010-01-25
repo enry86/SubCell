@@ -14,7 +14,8 @@ Options:
     -C  fixed C parameter for svm training
     -g  gamma parameter for the RBF kernel
     -n  number of iterations to validate the dataset in the optimal
-    paramters search
+    parameters search
+    -w  weight penalty value for the opposite class
     -m  alternative filename for model
 '''
 
@@ -36,12 +37,13 @@ def read_opts(argv):
     res['t'] = 0.6
     res['v'] = 0.2
     res['k'] = [3]
-    res['m'] = 'model'
     res['C'] = None
     res['g'] = None
     res['n'] = 1
+    res['w'] = 1
+    res['m'] = 'model'
     try:
-        opts, args = getopt.gnu_getopt(argv, 'm:t:v:k:h')
+        opts, args = getopt.gnu_getopt(argv, 'm:t:v:k:h:C:g:n:w')
     except getopt.GetoptError, err:
         print str(err)
         sys.exit(2)
@@ -71,7 +73,7 @@ def read_opts(argv):
                 res['k'] = [3]
         elif o == '-C':
             try:
-                if float(v) > 0:
+                if float(v) >= 0:
                     res['C'] = float(v)
                 else:
                     print 'WARN: Invalid value for the C parameter. Setting \
@@ -81,14 +83,24 @@ def read_opts(argv):
                 res['C'] = 1
         elif o == '-n':
             try:
-                if int(v) > 0:
+                if int(v) >= 0:
                     res['n'] = int(v)
                 else:
                     print 'WARN: Number of interactions cannot be 0. Setting \
                             to 1.'
                     res['n'] = 1
             except ValueError:
-                print 'WARN: Invalid Value for the number of interactions'
+                print 'WARN: Invalid Value for the number of interactions.'
+        elif o == '-w':
+            try:
+                if int(v) > 0:
+                    res['w'] = int(v)
+                else:
+                    print 'WARN: Penalty must be greater than zero. \
+                            Setting to 1.'
+                    res['w'] = 1
+            except ValueError:
+                print 'WARN: Invalid Value for the Penalty number.'
     if res['v'] + res['t'] >= 1:
         print 'WARN: No test dataset, falling back to default'
     try:
@@ -189,7 +201,7 @@ def main():
     print '\tString kernel initialized with %s k-grams' % len(krn.kgr)
     # Init SVM one-vs-all approach
     clm = classman.ClassMan(krn, ds_n)
-    clm.init_classifier(conf['C'],conf['g'],conf['n'])
+    clm.init_classifier(conf['C'],conf['g'],conf['n'],conf['w'])
     # Train SVM
     clm.train(mt = True)
     # perform test

@@ -76,7 +76,7 @@ class ClassMan:
         return (res, lab)
         
 
-    def init_classifier(self, C, gamma, iterations):
+    def init_classifier(self, C, gamma, iterations, penalty):
         '''
             SVM initialization, stores the list of SVM objects in a list
             at instance level
@@ -88,7 +88,7 @@ class ClassMan:
         for name in self.names:
             tmp = classifier.Classifier(self.get_lab(name, t_lab), trn, \
                     self.get_lab(name, v_lab), val, name, C, gamma, \
-                    iterations)
+                    iterations, penalty)
             print '\tSVM for %s initialized' % name
             svms.append(tmp)
         print 'Classifier initialized in %s sec.\n' % \

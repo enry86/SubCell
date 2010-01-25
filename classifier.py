@@ -8,7 +8,7 @@ import tuner
 
 class Classifier:
     def __init__(self, training_labels, training, validation_labels, validation,\
-                    clabel, C, gamma, iterations):
+                    clabel, C, gamma, iterations, penalty):
         '''
             Initialization of the problem through training data.
             labels      is a list of 0,1 that recognize each sample in the
@@ -26,23 +26,35 @@ class Classifier:
 
         # Ranges for parameter C and gamma
         # If C is None, the iteration on the range will be ignored
-        self.C_range = [1, 1]
-        # CHECK IF GAMMA IS 0
-        self.gamma_range = [0.003, 0.003]
-        self.C_step = self.C_range[0]
-        self.gamma_step = self.gamma_range[0]
-        #if C == None:
-        #    self.C_range = [pow(2,-5), pow(2,15)]           #max pow(2,15)
-        #    self.C_step = \
-        #            float(self.C_range[1] - self.C_range[0])/self.n_iterations
-        #    self.C = self.C_range[0]
-        #if gamma == None:
-        #    self.gamma_range = [pow(2,-15), pow(2,3)]       #max pow(2,3)
-        #    self.gamma_step = \
-        #            float(self.gamma_range[1] - self.gamma_range[0])/self.n_iterations
-        #    self.gamma = self.gamma_range[0]
+                
+        # Check the C parameter
+        if C != None:
+            if C == 0:
+                C = pow(2,-15)
+            self.C_range = [C, C]
+            self.C_step = self.C_range[0]
+        else:
+            self.C_range = [pow(2,-5), pow(2,15)]           #max pow(2,15)
+            self.C_step = \
+                    float(self.C_range[1] - self.C_range[0])/self.n_iterations
+            self.C = self.C_range[0]
+
+        # Check the gamma parameter
+        if gamma != None:
+            if gamma == 0:
+                gamma = pow(2,-30)
+            self.gamma_range = [gamma, gamma]
+            self.gamma_step = self.gamma_range[0]
+        else:
+            self.gamma_range = [pow(2,-15), pow(2,3)]       #max pow(2,3)
+            self.gamma_step = \
+                    float(self.gamma_range[1] - self.gamma_range[0])/self.n_iterations
+            self.gamma = self.gamma_range[0]
         self.finer_range = { 'C': 100, 'gamma': 1} 
 
+
+        #print "C = [%f, %f]; gamma = [%f, %f]" % \
+        #    (self.C_range[0],self.C_range[1],self.gamma_range[0],self.gamma_range[1])
 
         ## SVM initialization
         # To disable output messages from the library
@@ -50,7 +62,7 @@ class Classifier:
         # Definition of standard parameters for SVM
         self.parameters = svm_parameter(svm_type = C_SVC, kernel_type = RBF, \
                 C = self.C_range[0], gamma = self.gamma_range[0], probability = 1, \
-                nr_weight = 2, weight_label = [1, 0], weight = [5,1])
+                nr_weight = 2, weight_label = [1, 0], weight = [1,penalty])
         # Definition of the problem wrt training examples
         self.problem = svm_problem(self.t_labels, self.training)
 

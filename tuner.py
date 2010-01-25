@@ -22,7 +22,6 @@ class Tuner:
         while C <= end[0]:
             gamma = start[1]
             while gamma <= end[1]:
-                print "STEP", step
                 self.classifier.update_parameters(C,gamma)
                 self.classifier.train()
                 line = "*** TUNING: C = %f; gamma = %f " % (C, gamma)
@@ -137,14 +136,14 @@ class Tuner:
 
 		
         start, end, step = self.parameter_search(None, 0)
-        print "PARAM:", start, end, step
+        #print "PARAM:", start, end, step
         line = ("Coarse: C = [%f, %f], step %f, gamma = " + \
             "[%f,  %f], step %f \n")  \
             % (float(start[0]), float(end[0]), float(step[0]),\
             float(start[1]), float(end[1]), float(step[1]))
         self.log(line)
         best_param, prec = self.iterative_tuner(start, end, step)
-        print "BEST", best_param, prec
+        #print "BEST", best_param, prec
         line = ("\nBest parameters found: C = %f, gamma = %f; F-Measure is " + \
           "about %f \n") % (float(best_param[0]), float(best_param[1]), prec)
         self.log(line)
@@ -155,7 +154,7 @@ class Tuner:
         # Execute the finer search if there is at least one parameter to
         # iterate
         if (step[0] != start[0]) and (step[1] != start[1]):
-            print "PARAM finer",start,end,step
+            #print "PARAM finer",start,end,step
             line = ("\n\n Validation on the finer range: C = [%f, %f], step %f, gamma = " + \
               "[%f, %f], step %f \n") % (float(start[0]), float(end[0]), float(step[0]), \
                 float(start[1]), float(end[1]), float(step[1]))
