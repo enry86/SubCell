@@ -47,8 +47,10 @@ class Tuner:
         
         # FIX in the case the classifier fail for whole validation
         if data == []:
-            mid_C = (self.C_range[1] + self.C_range[0])/2
-            mid_gamma = (self.gamma_range[1] + self.gamma_range[0])/2
+            mid_C = (self.classifier.C_range[1] + \
+                self.classifier.C_range[0])/2
+            mid_gamma = (self.classifier.gamma_range[1] + \
+                self.classifier.gamma_range[0])/2
             data = [mid_C, mid_gamma]
         return (data, best)
     
