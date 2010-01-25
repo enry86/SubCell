@@ -37,8 +37,8 @@ def read_opts(argv):
     res['v'] = 0.2
     res['k'] = [3]
     res['m'] = 'model'
-    res['C'] = 1
-    res['g'] = 0.1
+    res['C'] = None
+    res['g'] = None
     res['n'] = 1
     try:
         opts, args = getopt.gnu_getopt(argv, 'm:t:v:k:h')
@@ -71,16 +71,21 @@ def read_opts(argv):
                 res['k'] = [3]
         elif o == '-C':
             try:
-                res['C'] = float(v)
+                if float(v) > 0:
+                    res['C'] = float(v)
+                else:
+                    print 'WARN: Invalid value for the C parameter. Setting \
+                            to 1.'
             except ValueError:
-                print 'WARN: Invalid value for the C parameter. Settin to 1.'
+                print 'WARN: Invalid value for the C parameter. Setting to 1.'
                 res['C'] = 1
         elif o == '-n':
             try:
                 if int(v) > 0:
                     res['n'] = int(v)
                 else:
-                    print 'WARN: Number of interactions cannot be 0. Setting to 1'
+                    print 'WARN: Number of interactions cannot be 0. Setting \
+                            to 1.'
                     res['n'] = 1
             except ValueError:
                 print 'WARN: Invalid Value for the number of interactions'
@@ -184,13 +189,13 @@ def main():
     print '\tString kernel initialized with %s k-grams' % len(krn.kgr)
     # Init SVM one-vs-all approach
     clm = classman.ClassMan(krn, ds_n)
-    clm.init_classifier()
+    clm.init_classifier(conf['C'],conf['g'],conf['n'])
     # Train SVM
     clm.train(mt = True)
     # perform test
     m = clm.test()
     output_metrics(m)
-    clm.validation(0)
+    clm.validation()
     m = clm.test()
     output_metrics(m)
     to_disk(clm.svms, krn, conf['m'])

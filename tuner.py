@@ -9,6 +9,7 @@ class Tuner:
         self.classifier = classifier
 	self.tuning_log = None
 
+
     def iterative_tuner(self, start, end, step):
         '''
             Simple function to perform the validation in two passages, the
@@ -21,6 +22,7 @@ class Tuner:
         while C <= end[0]:
             gamma = start[1]
             while gamma <= end[1]:
+                print "STEP", step
                 self.classifier.update_parameters(C,gamma)
                 self.classifier.train()
                 line = "*** TUNING: C = %f; gamma = %f " % (C, gamma)
@@ -53,11 +55,12 @@ class Tuner:
                 self.classifier.gamma_range[0])/2
             data = [mid_C, mid_gamma]
         return (data, best)
-    
+
+
     def parameter_search(self, element, mode):
         '''
             Returns the range and the step for the research mode
-            If mode == 1, the is a finer search and check the new range is in
+            If mode == 1, there is a finer search and check the new range is in
             the admitted
         '''
         if mode == 0:
@@ -82,11 +85,21 @@ class Tuner:
 
             start = [c_start, gamma_start]
             end = [c_end, gamma_end]
-        
-        C_step = float(end[0] - start[0])/self.classifier.n_iterations
-        gamma_step = float(end[1] - start[1])/self.classifier.n_iterations
+       
+        # In the case the value is set, both value of the rage are the same,
+        # so the step is the value to out the range
+        if self.classifier.C_range[0] == self.classifier.C_range[1]:
+            C_step = self.classifier.C_range[0]
+        else:
+            C_step = float(end[0] - start[0])/self.classifier.n_iterations
+
+        if self.classifier.gamma_range[0] == self.classifier.gamma_range[1]:
+            gamma_step = self.classifier.gamma_range[0]
+        else:
+            gamma_step = float(end[1] - start[1])/self.classifier.n_iterations
         step = [C_step, gamma_step]
         return (start, end, step)
+
 
     def log(self, data):
         '''
@@ -108,17 +121,15 @@ class Tuner:
             print "Write data ", data
             self.tuning_log.write(data)
 
-    def tune(self, parameter):
+
+    def tune(self):
         '''
-            Considering default kernel as RBF - for the moment is the
-            simplier.
-            parameter:  if 0, then no parameters will be used;
-                dicts of parameters:
-                    Kernel  "stands for the Kernel type to use"
-                    C       "stands for the C regulation parameter" 
-                    gamma   "stands for the gamma kernel parameter"
-            IMPROVEMENT: inserire parametri da riga di comando, filtrarli qui
-            nei parametri
+            Considering default kernel as RBF. The tuning consist to find the
+            best C, gamma parameter to maximize the F-measure for the SVM.
+            #In particular if one of the two parameter is "None", then the
+            #function iterate for its default range foreseen by the SVM.
+            #If both parameters are already fixed, this tuning should never be
+            #computed
         '''
 
         line = ("Validation on %s") % (self.classifier.clabel)
@@ -141,22 +152,25 @@ class Tuner:
 
 	# Start a finer search on neighbour of the best parameter.
 	start, end, step = self.parameter_search(best_param, 1)
-	print "PARAM finer",start,end,step
-	line = ("\n\n Validation on the finer range: C = [%f, %f], step %f, gamma = " + \
-	  "[%f, %f], step %f \n") % (float(start[0]), float(end[0]), float(step[0]), \
-	    float(start[1]), float(end[1]), float(step[1]))
-	self.log(line)
-	best_param_finer, prec_finer = self.iterative_tuner(start, end, step)
+        # Execute the finer search if there is at least one parameter to
+        # iterate
+        if (step[0] != start[0]) and (step[1] != start[1]):
+            print "PARAM finer",start,end,step
+            line = ("\n\n Validation on the finer range: C = [%f, %f], step %f, gamma = " + \
+              "[%f, %f], step %f \n") % (float(start[0]), float(end[0]), float(step[0]), \
+                float(start[1]), float(end[1]), float(step[1]))
+            self.log(line)
+            best_param_finer, prec_finer = self.iterative_tuner(start, end, step)
 
-	# In the case the finer range founds the best parameter, it is swapped
-	if prec_finer > prec:
-            best_param = best_param_finer[:]
-            prec = prec_finer
+            # In the case the finer range founds the best parameter, it is swapped
+            if prec_finer > prec:
+                best_param = best_param_finer[:]
+                prec = prec_finer
 
-	print "BEST ALL", best_param, prec
-	line = ("\n\n\nBest parameters found: C = %f, gamma = %f; F-measure is " + \
-	  "about %f \n") % (best_param[0], best_param[1], prec)
-	self.log(line)
+            print "BEST ALL", best_param, prec
+            line = ("\n\n\nBest parameters found: C = %f, gamma = %f; F-measure is " + \
+              "about %f \n") % (best_param[0], best_param[1], prec)
+            self.log(line)
 
 	line  = ("Setting up the model for %s with the parameters: " + \
                 "C = %f, gamma = %f; F-measure is about %f") \

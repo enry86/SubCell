@@ -76,7 +76,7 @@ class ClassMan:
         return (res, lab)
         
 
-    def init_classifier(self):
+    def init_classifier(self, C, gamma, iterations):
         '''
             SVM initialization, stores the list of SVM objects in a list
             at instance level
@@ -85,10 +85,11 @@ class ClassMan:
         print '\nSVM initialization:'
         startt = time.time()
         t_lab, trn, v_lab, val = self.init_ds()
-        for n in self.names:
-            tmp = classifier.Classifier(self.get_lab(n, t_lab), trn, \
-                    self.get_lab(n, v_lab), val, n)
-            print '\tSVM for %s initialized' % n
+        for name in self.names:
+            tmp = classifier.Classifier(self.get_lab(name, t_lab), trn, \
+                    self.get_lab(name, v_lab), val, name, C, gamma, \
+                    iterations)
+            print '\tSVM for %s initialized' % name
             svms.append(tmp)
         print 'Classifier initialized in %s sec.\n' % \
             (time.time() - startt)
@@ -174,11 +175,11 @@ class ClassMan:
         return cls, res
 
 
-    def validation(self, parameters):
+    def validation(self):
         '''
             Manages the execution of the validation session, performing the
             tuning for all the svm passing the common fixed set of paramters.
         '''
         for svm in self.svms:
             print "Tuning of ", svm.clabel
-            svm.tuning(parameters)
+            svm.tuning()
