@@ -19,7 +19,6 @@ class StrKernel:
             f.close()
 
 
-
     def retrieve_sub(self, ds_f):
         '''
             retrieves all the substrings in the dataset
@@ -31,23 +30,26 @@ class StrKernel:
         res.sort()
         return res      # Returned a list of keys, sorted
 
+
     def read_file(self, f, sub):
         for l in f:
             if l[0] != '>' and l != '\n':
                 self.add_sub(sub, l)
+
 
     def add_sub(self, kgr, l):
         '''
             fills a dictionary with substrings count of a single protein
         '''
         for k in self.k_list:
-            for i in range(len(l[:-1]) - (k - 1)):
+            l = l.strip()
+            for i in range(len(l) - (k - 1)):
                 tmp = l[i : i + k]
                 if kgr.has_key(tmp):
                     kgr[tmp] += 1
                 else:
                     kgr[tmp] = 1
-    
+
 
     def build_hash(self, kgr):
         res = {}
