@@ -186,7 +186,7 @@ def main():
     clm = classman.ClassMan(krn, ds_n)
     clm.init_classifier()
     # Train SVM
-    #clm.train(mt = True)
+    clm.train(mt = True)
     # perform test
     m = clm.test()
     output_metrics(m)
