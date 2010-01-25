@@ -21,7 +21,6 @@ class Classifier:
         self.training = training
         self.v_labels = validation_labels
         self.validation = validation
-#        self.tuning_log = None
 
         # Ranges for parameter C and gamma
         self.n_iterations = 1
