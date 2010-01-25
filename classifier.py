@@ -37,7 +37,7 @@ class Classifier:
         svmc.svm_set_quiet()
         # Definition of standard parameters for SVM
         self.parameters = svm_parameter(svm_type = C_SVC, kernel_type = RBF, \
-                C = 1, gamma = 0, probability = 1)
+                C = self.C_range[0], gamma = self.gamma_range[0], probability = 1)
         # Definition of the problem wrt training examples
         self.problem = svm_problem(self.t_labels, self.training)
 
@@ -54,11 +54,11 @@ class Classifier:
         if gamma != None:
             self.parameters.gamma = gamma
 
-
     def train(self):
         '''
             Train the SVM defined by problem  with the parameters given
         '''
+        self.svm_check_parameter()
         self.model = svm_model(self.problem,self.parameters)
 
 
