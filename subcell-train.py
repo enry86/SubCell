@@ -68,6 +68,21 @@ def read_opts(argv):
             except ValueError:
                 print 'WARN: Invalid k-gram dimension, falling to default'
                 res['k'] = [3]
+        elif o == '-C':
+            try:
+                res['C'] = float(v)
+            except ValueError:
+                print 'WARN: Invalid value for the C parameter. Settin to 1.'
+                res['C'] = 1
+        elif o == '-n':
+            try:
+                if int(v) > 0:
+                    res['n'] = int(v)
+                else:
+                    print 'WARN: Number of interactions cannot be 0. Setting to 1'
+                    res['n'] = 1
+            except ValueError:
+                print 'WARN: Invalid Value for the number of interactions'
     if res['v'] + res['t'] >= 1:
         print 'WARN: No test dataset, falling back to default'
     try:
