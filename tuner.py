@@ -36,6 +36,7 @@ class Tuner:
                 except:
                     precision = 1.0
                 recall = float(c)/(c+nr)
+                
                 print "Precision %f, Recall %f" % (precision, recall)
                 if precision > best:
                     best = precision
