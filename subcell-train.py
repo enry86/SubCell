@@ -26,6 +26,7 @@ import getopt
 import random
 import classman
 import pickle
+import measure
 
 def read_opts(argv):
     '''
@@ -154,23 +155,23 @@ def to_disk(svms, krn, filename):
     f.close()
 
 
-def output_metrics(met, tot, dim):
-    c = 0
-    t = 0
+def output_metrics(meas):
+    met = meas.all_metrics()
     print 'Quality measures for each SVM:'
-    for m in met[0]:
+    for m in met:
         print '\t' + m + ':'
-        print '\t\tPrecision:', met[0][m][0]
-        print '\t\tRecall:', met[0][m][1]
-        print '\t\tF-Measure:', met[0][m][2]
+        print '\t\tPrecision:', met[m][0]
+        print '\t\tRecall:', met[m][1]
+        print '\t\tF-Measure:', met[m][2]
+        c, t = meas.ds_counter(m)
         print '\t\tCorr / Tot (%d / %d): %f' \
-            % (tot[m], dim[m],  tot[m] / float(dim[m]))
-        c += tot[m]
-        t += dim[m]
+            % (c, t,  c / float(t))
+    mav = meas.micro_average()
     print '\nMicro-average:'
-    print '\tPrecision:', met[1][0]
-    print '\tRecall:', met[1][1]
-    print '\tF-Measure:', met[1][2]
+    print '\tPrecision:', mav[0]
+    print '\tRecall:', mav[1]
+    print '\tF-Measure:', mav[2]
+    c, t = meas.all_counter()
     print '\tCorr / Tot (%d / %d): %f' % (c, t, c / float(t))
 
 
@@ -185,13 +186,13 @@ def main():
     clm = classman.ClassMan(krn, ds_n)
     clm.init_classifier()
     # Train SVM
-    #clm.train(mt = True)
+    clm.train(mt = True)
     # perform test
-    #t = clm.test()
-    #output_metrics(clm.get_metrics(), t, clm.tst_d)
+    m = clm.test()
+    output_metrics(m)
     clm.validation(0)
-    t = clm.test()
-    output_metrics(clm.get_metrics(), t, clm.tst_d)
+    m = clm.test()
+    output_metrics(m)
     to_disk(clm.svms, krn, conf['m'])
     print '\nModel saved with filename:', conf['m']
     clean_tmp()
