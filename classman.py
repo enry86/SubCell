@@ -180,6 +180,20 @@ class ClassMan:
             Manages the execution of the validation session, performing the
             tuning for all the svm passing the common fixed set of paramters.
         '''
+        thrs = []
+        startt = time.time()
         for svm in self.svms:
-            print "Tuning of ", svm.clabel
-            svm.tuning()
+            svm.enable_penalty()
+            tmp = threading.Thread(target = svm.tuning)
+            thrs.append(tmp)
+            tmp.start()
+            print '\tValidation for %s started...' % svm.clabel
+        for t in thrs:
+            t.join()
+        print 'SVM validated in %s sec. (multithreading)\n' %  \
+            (time.time() - startt)
+
+
+#        for svm in self.svms:
+#            print "Tuning of ", svm.clabel
+#            svm.tuning()

@@ -12,7 +12,7 @@ class Tuner:
 
     def iterative_tuner(self, start, end, step):
         '''
-            Simple function to perform the validation in two passages, the
+            Perform the validation in two passages, the
             first has a wide range and a big step, the second has a minor
             range and a little step
         '''
@@ -25,19 +25,20 @@ class Tuner:
                 self.classifier.measure.reset()
                 self.classifier.update_parameters(C,gamma)
                 self.classifier.train()
-                line = "*** TUNING: C = %f; gamma = %f " % (C, gamma)
-                self.log(line)
                 self.classifier.validate()
                 precision,recall,f_meas = \
                     self.classifier.measure.svm_metrics(self.classifier.clabel)
-                c,t = self.classifier.measure.all_counter()
+                line = ("*** TUNING: C = %f; gamma = %f; Precision = %f; " +\
+                        "Recall = %f; F-Measure = %f") \
+                        % (float(C), gamma, precision, recall, f_meas)
+                self.log(line)
                 print "Precision %f, Recall %f, F-Measure %f" % \
                         (precision, recall, f_meas)
                 if f_meas > best:
                     best = f_meas
                     data = [C, gamma]
+                c,t = self.classifier.measure.all_counter()
                 line = "Correct: %i / %i    C: %f    Gamma: %f \n" % (c, t, C, gamma)
-                self.log(line)
                 gamma += step[1]
             C += step[0]
         

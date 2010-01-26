@@ -25,10 +25,7 @@ class Classifier:
         self.validation = validation
         self.n_iterations = iterations
         self.measure = measure.Measure([self.clabel])
-
-
-        penalty = 5
-
+        self.penalty = penalty
 
         # Ranges for parameter C and gamma
         # If C is None, the iteration on the range will be ignored
@@ -68,12 +65,20 @@ class Classifier:
         # Definition of standard parameters for SVM
         self.parameters = svm_parameter(svm_type = C_SVC, kernel_type = RBF, \
                 C = self.C_range[0], gamma = self.gamma_range[0], probability = 1, \
-                nr_weight = 2, weight_label = [1, 0], weight = [1,penalty])
+                nr_weight = 2, weight_label = [1, 0], weight = [1,1])
         # Definition of the problem wrt training examples
         self.problem = svm_problem(self.t_labels, self.training)
 
         # Initializing the external tuner
         self.tune = tuner.Tuner(self)
+
+
+    def enable_penalty(self):
+        '''
+            Setting up the penalty for the negative examples
+        '''
+        self.parameters.weight = [1, self.penalty]
+        print "Penalty for negative samples set to ", self.penalty
 
 
     def update_parameters(self, C, gamma):
@@ -112,10 +117,14 @@ class Classifier:
         pred = {}
         correct = wrong = nr = total = 0
         for d in self.validation:
-            pred = {self.clabel: self.classify(d)}
+            prediction = self.classify(d)
+            pred = {self.clabel: prediction}
             if self.v_labels[i] == 1:
                 self.measure.update_res(pred, self.clabel)
-                self.measure.update_count(True, self.clabel)
+                if prediction[0] == 1:
+                    self.measure.update_count(True, self.clabel)
+                else:
+                    self.measure.update_count(False, self.clabel)
             else:
                 self.measure.update_res(pred, '§')
                 self.measure.update_count(False, self.clabel)
