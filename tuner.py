@@ -22,20 +22,15 @@ class Tuner:
         while C <= end[0]:
             gamma = start[1]
             while gamma <= end[1]:
+                self.classifier.measure.reset()
                 self.classifier.update_parameters(C,gamma)
                 self.classifier.train()
                 line = "*** TUNING: C = %f; gamma = %f " % (C, gamma)
                 self.log(line)
-                c,w,nr,t = self.classifier.validate()
-                try:
-                    precision = float(c)/(c+w)
-                except:
-                    precision = 1.0
-                recall = float(c)/(c+nr)
-                try:
-                    f_meas = 2.0 * (recall * precision) / (recall + precision)
-                except:
-                    f_meas = 0.0
+                self.classifier.validate()
+                precision,recall,f_meas = \
+                    self.classifier.measure.svm_metrics(self.classifier.clabel)
+                c,t = self.classifier.measure.all_counter()
                 print "Precision %f, Recall %f, F-Measure %f" % \
                         (precision, recall, f_meas)
                 if f_meas > best:

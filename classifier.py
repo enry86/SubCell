@@ -5,6 +5,7 @@ from svm import *
 import math
 import os
 import tuner
+import measure
 
 class Classifier:
     def __init__(self, training_labels, training, validation_labels, validation,\
@@ -23,6 +24,7 @@ class Classifier:
         self.v_labels = validation_labels
         self.validation = validation
         self.n_iterations = iterations
+        self.measure = measure.Measure([self.clabel])
 
         # Ranges for parameter C and gamma
         # If C is None, the iteration on the range will be ignored
@@ -106,16 +108,14 @@ class Classifier:
         pred = {}
         correct = wrong = nr = total = 0
         for d in self.validation:
-            pred = self.classify(d)
-            if (pred[0] == 1) and (self.v_labels[i] == 1):
-                correct += 1
-            elif not pred[0] and (self.v_labels[i] == 1):
-                nr += 1
-            elif self.v_labels[i] == 1:
-                wrong += 1
-            total += 1
+            pred = {self.clabel: self.classify(d)}
+            if self.v_labels[i] == 1:
+                self.measure.update_res(pred, self.clabel)
+                self.measure.update_count(True, self.clabel)
+            else:
+                self.measure.update_res(pred, '§')
+                self.measure.update_count(False, self.clabel)
             i += 1
-        return correct, wrong, nr, total
 
 
     def tuning(self):

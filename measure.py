@@ -6,6 +6,8 @@ class Measure:
     '''
         Class which handles metrics computation
         names   list of names of the svms
+        res[name] = [correct, mistake, non retrieved]
+        cny[name] = [correct, total]
     '''
     
     def __init__(self, names):
@@ -15,6 +17,14 @@ class Measure:
             self.res[n] = [0,0,0]
             self.cnt[n] = [0,0]
         
+    def reset(self):
+        '''
+            Reset the internal status of the SVMs measures.
+        '''
+        for n in self.res:
+            self.res[n] = [0,0,0]
+            self.cnt[n] = [0,0]
+
 
     def update_res(self, preds, c):
         '''
@@ -35,7 +45,6 @@ class Measure:
             else:
                 if preds[p][0] == 1.0:
                     self.res[p][1] += 1
-    
 
     def update_count(self, res, cls):
         '''
