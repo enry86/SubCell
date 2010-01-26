@@ -43,7 +43,7 @@ def read_opts(argv):
     res['w'] = 1
     res['m'] = 'model'
     try:
-        opts, args = getopt.gnu_getopt(argv, 'm:t:v:k:h:C:g:n:w')
+        opts, args = getopt.gnu_getopt(argv, 'm:t:v:k:h:C:g:n:w:')
     except getopt.GetoptError, err:
         print str(err)
         sys.exit(2)
