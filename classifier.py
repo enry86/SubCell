@@ -26,6 +26,10 @@ class Classifier:
         self.n_iterations = iterations
         self.measure = measure.Measure([self.clabel])
 
+
+        penalty = 5
+
+
         # Ranges for parameter C and gamma
         # If C is None, the iteration on the range will be ignored
                 
