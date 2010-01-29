@@ -16,6 +16,7 @@ Options:
     -n  number of iterations to validate the dataset in the optimal
     parameters search
     -w  weight penalty value for the opposite class
+    -s  single test mode
     -m  alternative filename for model
 '''
 
@@ -42,8 +43,9 @@ def read_opts(argv):
     res['n'] = 1
     res['w'] = 1
     res['m'] = 'model'
+    res['s'] = False
     try:
-        opts, args = getopt.gnu_getopt(argv, 'm:t:v:k:h:C:g:n:w:')
+        opts, args = getopt.gnu_getopt(argv, 'm:t:v:k:h:C:g:n:w:s')
     except getopt.GetoptError, err:
         print str(err)
         sys.exit(2)
@@ -102,6 +104,8 @@ def read_opts(argv):
             except ValueError:
                 print 'WARN: Invalid Value for the Penalty number.'
                 res['w'] = 1
+        elif o == '-s':
+            res['s'] = True
     if res['v'] + res['t'] >= 1:
         print 'WARN: No test dataset, falling back to default'
     try:
@@ -207,10 +211,11 @@ def main():
     clm.train(mt = True)
     # perform test
     m = clm.test()
-    output_metrics(m)
-    clm.validation()
-    m = clm.test()
-    output_metrics(m)
+    output_metrics(m)   
+    if not conf['s']:
+        clm.validation()
+        m = clm.test()
+        output_metrics(m)
     to_disk(clm.svms, krn, conf['m'])
     print '\nModel saved with filename:', conf['m']
     clean_tmp()
