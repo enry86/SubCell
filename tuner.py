@@ -29,7 +29,7 @@ class Tuner:
                 precision,recall,f_meas = \
                     self.classifier.measure.svm_metrics(self.classifier.clabel)
                 line = ("*** TUNING: C = %f; gamma = %f; Precision = %f; " +\
-                        "Recall = %f; F-Measure = %f") \
+                        "Recall = %f; F-Measure = %f\n") \
                         % (float(C), gamma, precision, recall, f_meas)
                 self.log(line)
                 print "Precision %f, Recall %f, F-Measure %f" % \
