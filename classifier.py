@@ -37,7 +37,7 @@ class Classifier:
             self.C_range = [C, C]
             self.C_step = self.C_range[0]
         else:
-            self.C_range = [pow(2,-5), pow(2,15)]           #max pow(2,15)
+            self.C_range = [pow(2,-5), pow(2,17)]           #max pow(2,15)
             self.C_step = \
                     float(self.C_range[1] - self.C_range[0])/self.n_iterations
             self.C = self.C_range[0]
@@ -49,9 +49,10 @@ class Classifier:
             self.gamma_range = [gamma, gamma]
             self.gamma_step = self.gamma_range[0]
         else:
-            self.gamma_range = [pow(2,-15), pow(2,3)]       #max pow(2,3)
+            self.gamma_range = [pow(2,-15), pow(2,-1)]       #max pow(2,3)
             self.gamma_step = \
-                    float(self.gamma_range[1] - self.gamma_range[0])/self.n_iterations
+                    float(self.gamma_range[1] -
+                            self.gamma_range[0])/(self.n_iterations/3)
             self.gamma = self.gamma_range[0]
         self.finer_range = { 'C': 100, 'gamma': 1} 
 
