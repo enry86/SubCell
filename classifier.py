@@ -52,7 +52,7 @@ class Classifier:
             self.gamma_range = [pow(2,-15), pow(2,-1)]       #max pow(2,3)
             self.gamma_step = \
                     float(self.gamma_range[1] -
-                            self.gamma_range[0])/(self.n_iterations/3)
+                            self.gamma_range[0])/(self.n_iterations/3.0)
             self.gamma = self.gamma_range[0]
         self.finer_range = { 'C': 100, 'gamma': 1} 
 
