@@ -25,6 +25,9 @@ import matplotlib.pyplot as pyp
 def read_opts(clp):
     '''
         Reads and returns command line parameters splitted.
+        clp     command line parameters
+        Return
+            p['dir']    list of logs directories
     '''
     p = {}
     p['dir'] = []
@@ -39,7 +42,12 @@ def read_opts(clp):
             p['dir'] = value.split(',')
     return p
 
+
 def initialization(clp):
+    '''
+        Read logs directory and build directory plot with subdirs
+        clp     command line parameter
+    '''
     dlog = {}
     # Read the log directory
     for d in clp['dir']:
@@ -51,14 +59,23 @@ def initialization(clp):
         os.mkdir('plot')
     except OSError:
         pass
-    try:
-        for d in dlog:
+    for d in dlog:
+        try:
             os.mkdir('plot/' + d)
-    except OSError:
-        pass
+        except OSError, e:
+            print e
+            pass
     return dlog
 
+
 def split_line(line):
+    '''
+        Given a log line as input, split it for the " " and returns the values
+        Line format:
+           *** TUNING ..... C = <float> ... gamma = <float> ... F-Measure = <float>
+        Returns:
+            C, gamma, F-Measure
+    '''
     tmp = string.split(line,' ')
     for i in xrange(len(tmp)):
         if tmp[i] == 'C':
@@ -68,6 +85,7 @@ def split_line(line):
         elif tmp[i] == 'F-Measure':
             f_meas = float(tmp[i+2])
     return C, gamma, f_meas
+
 
 def read_data(dlog):
     '''
@@ -96,39 +114,33 @@ def read_data(dlog):
 
 
 def plot(data):
-
+    '''
+        Given the whole log data, plots the graph for each log directory,
+        considering each SVM log separately. Gamma is fixed < 0.00020
+        due the relevant results are in this area
+            x Axis      C
+            y Axis      F-measure
+    '''
     for d in data:
         for log in data[d]:
             pyp.figure(1)
-            pyp.suptitle(d + ' - ' + log[:-4] + ' -- Gamma fixed < 0.20')
+            pyp.suptitle(d + ' - ' + log[:-4] + ' -- Gamma fixed < 0.00020')
             C_dep = []
             gamma_dep = []
           
             for element in data[d][log]:
-                if element[1] < 0.2:
+                if element[1] < 0.0002:
                     C_dep.append([element[0], element[2]])
-                 #C_dep.append([element[0], element[2]])
-                 #gamma_dep.append([element[1], element[2]])
 
             C_dep.sort()
-            #gamma_dep.sort()
-            #print "GAMMA", gamma_dep
             C = map(operator.itemgetter(0), C_dep)
-            #gamma = map(operator.itemgetter(0), gamma_dep)
 
-            filename = (d + '-' + log[:-4])
-            #pyp.subplot(211)
+            filename = ('plot/' + d + '/' + d + '-' + log[:-4])
             pyp.ylabel('F-measure')
             pyp.xlabel('C')
             pyp.plot(C, map(operator.itemgetter(1), C_dep))
-            #print "FMEASURE", map(operator.itemgetter(1), C_dep)
 
-            #pyp.subplot(212)
-            #pyp.ylabel('F-measure')
-            #pyp.xlabel('gamma')
-            #pyp.plot(gamma, map(operator.itemgetter(1), gamma_dep))
-            #print "FMEASURE2", map(operator.itemgetter(1), gamma_dep)           
-
+            print "Saving: ", filename
             pyp.savefig(filename)
             pyp.clf()
 
