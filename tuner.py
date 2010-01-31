@@ -145,8 +145,8 @@ class Tuner:
         self.log(line)
 
 
-	# Start a finer search on neighbour of the best parameter.
-	start, end, step = self.parameter_search(best_param, 1)
+    	# Start a finer search on neighbour of the best parameter.
+	    start, end, step = self.parameter_search(best_param, 1)
         # Execute the finer search if there is at least one parameter to
         # iterate
         if (step[0] != start[0]) and (step[1] != start[1]):
