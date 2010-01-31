@@ -49,7 +49,8 @@ class Classifier:
             self.gamma_range = [gamma, gamma]
             self.gamma_step = self.gamma_range[0]
         else:
-            self.gamma_range = [pow(2,-15), pow(2,-1)]       #max pow(2,3)
+            #self.gamma_range = [pow(2,-15), pow(2,-1)]       #max pow(2,3)
+            self.gamma_range = [0.000001, 0.00006]
             self.gamma_step = \
                     float(self.gamma_range[1] -
                             self.gamma_range[0])/(self.n_iterations/3.0)
