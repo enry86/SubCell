@@ -1,13 +1,19 @@
 #!/usr/bin/python
 
 '''
-Plot - Tool to represent data obtained by SubCell graphically
-
+Plot -  Tool to represent data obtained by SubCell graphically
+        Standard behaviour is to plot the F-measure bounded to the C with
+        gamma < 0.00020
 Usage:
-    ./plot.py -d <directory1>[,<directories>,...]
+    ./plot.py -d <directory1>[,<directories>,...] [OPTIONS]
 
 Boundaries:
     directory1 must have a subdirectory /log/, where log file should be stored
+    cannot be both C and gamma fixed
+
+Options
+    -C      Set the fixed C parameter
+    -g      Set the fixed gamma paramter
 '''
 
 
@@ -31,15 +37,31 @@ def read_opts(clp):
     '''
     p = {}
     p['dir'] = []
-
+    p['C'] = None
+    p['g'] = None
     try:
-        opts, args = getopt.gnu_getopt(clp, 'd:')
+        opts, args = getopt.gnu_getopt(clp, 'd:C:g:')
     except getopt.GetoptError, err:
         print str(err)
         sys.exit(2)
     for option, value in opts:
         if option == '-d':
             p['dir'] = value.split(',')
+        if option == '-C':
+            try:
+                if float(value) >= 0:
+                    p['C'] = float(value)
+            except ValueError:
+                print "WARN: Invalid value for C parameter."
+        if option == '-g':
+            try:
+                if float(value) >= 0:
+                    p['g'] = float(value)
+            except ValueError:
+                print "WARN: Invalid value for gamma parameter."
+    if ( p['C'] != None ) and ( p['g'] != None):
+            print "Error: Both parameter fixed. Choose one."
+            sys.exit(1)
     return p
 
 
@@ -113,7 +135,7 @@ def read_data(dlog):
     return directories
 
 
-def plot(data):
+def plot(clp,data):
     '''
         Given the whole log data, plots the graph for each log directory,
         considering each SVM log separately. Gamma is fixed < 0.00020
@@ -124,21 +146,35 @@ def plot(data):
     for d in data:
         for log in data[d]:
             pyp.figure(1)
-            pyp.suptitle(d + ' - ' + log[:-4] + ' -- Gamma fixed < 0.00020')
-            C_dep = []
-            gamma_dep = []
-          
+            values = []
+            
+            ind = 1
+            threshold = 0.00020
+            txt = "Gamma fixed < " + str(threshold)
+            if clp['C'] != None:
+                ind = 0
+                threshold = clp['C']
+                txt = "C fixed < " + str(threshold)
+            elif clp['g'] != None:
+                ind = 1
+                threshold = clp['g']
+                txt = "Gamma fixed < " + str(threshold)
+            pyp.suptitle(d + ' - ' + log[:-4] + ' -- ' + txt)
+            
             for element in data[d][log]:
-                if element[1] < 0.0002:
-                    C_dep.append([element[0], element[2]])
+                if element[ind] < threshold:
+                    values.append([element[ (ind - 1) % 2 ], element[2]])
 
-            C_dep.sort()
-            C = map(operator.itemgetter(0), C_dep)
+            values.sort()
+            x = map(operator.itemgetter(0), values)
 
             filename = ('plot/' + d + '/' + d + '-' + log[:-4])
             pyp.ylabel('F-measure')
-            pyp.xlabel('C')
-            pyp.plot(C, map(operator.itemgetter(1), C_dep))
+            if clp['C'] != None:
+                pyp.xlabel('gamma')
+            else:
+                pyp.xlabel('C')
+            pyp.plot(x, map(operator.itemgetter(1), values))
 
             print "Saving: ", filename
             pyp.savefig(filename)
@@ -148,7 +184,7 @@ def main():
     clp = read_opts(sys.argv)
     dlog = initialization(clp)
     data = read_data(dlog)
-    plot(data)
+    plot(clp,data)
 
 if __name__ == '__main__':
     main()
