@@ -108,6 +108,8 @@ def read_opts(argv):
             res['s'] = True
     if res['v'] + res['t'] >= 1:
         print 'WARN: No test dataset, falling back to default'
+        res['t'] = 0.6
+        res['v'] = 0.2
     try:
         res['ds_dir'] = args[1]
     except IndexError:
