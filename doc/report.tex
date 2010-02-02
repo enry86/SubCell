@@ -109,6 +109,7 @@ protein into its corresponding vector the actual implementation relies on
 hashsets (Python dictionaries) for storing the list of substrings and
 retrieve their ids easily.
 
+
 \section{ALGORITHMS}
 %Description of algorithms adopted
 The global view is of a classifier that is actually composed by four SVM tuned to
@@ -133,7 +134,7 @@ the SVM, and the $ \gamma $ parameter, for the kernel, is performed maximizing
 the F-measure as in \ref{f_meas} obtained using the training set for learning and
 the validation set to perform the measurements. The F-measure is a general index
 that allows to maximize both Precision and Recall measurements, so through that is
-assured that the program will reach a good performance about the quality of the 
+assured the program will reach a good performance about the quality of the 
 classification.
 
 \begin{equation}
@@ -141,6 +142,21 @@ F-measure = 2 * \frac{Precision * Recall}{Precision + Recall}
 \label{fmeas}
 \end{equation}
 
+The two parameters the algorithm must found are concerning the way the classifier
+realize the hyperplane over a vector space of different thousands of dimensions.
+Since there isn't a precise way to retrieve them, the way chosen perform a 
+linear scanning over all the possible values in a good range; that is an interval
+which is known to have good results. By theory, a great value of \emph{C} suggest
+to have a harder margin since the cost of the errors is high; a theoretical good
+value for $ \gamma $ is given by the formula \ref{gamma}
+
+\begin{equation}
+\frac{1}{DSdimension}
+\label{gamma}
+\end{equation}
+
+where the \emph{DSdimension} is the number of samples of the dataset of the
+problems. 
 
 
 \subsection{One-vs-All approach}
@@ -204,15 +220,9 @@ $$
 $$
 
 While for the \emph{C} parameter there wasn't a real deal to afford, the 
-$ \gamma $ parameter is found to be around the theoretical value of:
+$ \gamma $ parameter is found to be around the theoretical value of \ref{gamma}
 
-\begin{equation}
-\frac{1}{DSdimension}
-\label{gamma}
-\end{equation}
-
-where the \emph{DSdimension} is the number of samples of the dataset of the
-problems. In the run experiments was considered a set build up of two, three and
+In the run experiments was considered a set build up of two, three and
 five k-grams and the overall number of features was around six houndred and 
 thirty thousand, for which the value expressed by \ref{gamma} is 0.0005.
 
