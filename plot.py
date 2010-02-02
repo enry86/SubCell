@@ -135,6 +135,24 @@ def read_data(dlog):
     return directories
 
 
+def clean(values):
+    '''
+        Remove from array the duplicate elements for the C
+    '''
+    i = 0
+    while 1:
+        try:
+            if abs(values[i][0] - values[i+1][0]) < 1000:
+                if values[i][1] < values[i+1][1]:
+                    values.__delitem__(i)
+                else:
+                    values.__delitem__(i+1)
+            else:
+                i += 1
+        except IndexError:
+            break
+
+
 def plot(clp,data):
     '''
         Given the whole log data, plots the graph for each log directory,
@@ -166,6 +184,9 @@ def plot(clp,data):
                     values.append([element[ (ind - 1) % 2 ], element[2]])
 
             values.sort()
+            print values
+            clean(values)
+            print "POST\n", values
             x = map(operator.itemgetter(0), values)
 
             filename = ('plot/' + d + '/' + d + '-' + log[:-4])

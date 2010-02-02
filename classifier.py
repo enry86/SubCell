@@ -50,12 +50,12 @@ class Classifier:
             self.gamma_step = self.gamma_range[0]
         else:
             #self.gamma_range = [pow(2,-15), pow(2,-1)]       #max pow(2,3)
-            self.gamma_range = [0.000001, 0.00006]
+            self.gamma_range = [0.0000005, 0.0005]
             self.gamma_step = \
                     float(self.gamma_range[1] -
-                            self.gamma_range[0])/(self.n_iterations/3.0)
+                            self.gamma_range[0])/self.n_iterations
             self.gamma = self.gamma_range[0]
-        self.finer_range = { 'C': 100, 'gamma': 1} 
+        self.finer_range = { 'C': 100, 'gamma': 0.000009} 
 
 
         #print "C = [%f, %f]; gamma = [%f, %f]" % \

@@ -19,9 +19,10 @@ class Tuner:
         data = []
         best = 0.
         C = start[0]
+
         while C <= end[0]:
             gamma = start[1]
-            while gamma <= end[1]:
+            while (gamma <= end[1]):
                 self.classifier.measure.reset()
                 self.classifier.update_parameters(C,gamma)
                 self.classifier.train()
