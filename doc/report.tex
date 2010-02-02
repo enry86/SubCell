@@ -125,14 +125,20 @@ F-measure = 2 * \frac{Precision * Recall}{Precision + Recall}
 \label{fmeas}
 \end{equation}
 
+
+
 \subsection{One-vs-All approach}
-The one-vs-all approach 
+The one-vs-all approach method consists to build one tuned SVM for each possible 
+location in order maximize the probability of the prediction for given a sample
+in that class.
 
 During the validation phase, each single SVM iterate on a defined range of \emph{C} and
 $ \gamma $ looking for that couple that obtain the best performances. Since each
 trainig phase is time expensive, it has been decided to perform a single skim
 of both ranges to find one possible couple and later take a closest range centered
 on that result to finer the research.
+
+Once the 
 
 \section{SOFTWARE STRUCTURE}
 The language chosen to implement the algorithm is python for its attitude to allow 
@@ -160,6 +166,7 @@ mandatory
 \item{-n} number of interaction, optional
 \item{-w} penalty weight for the negative samples, optional
 \item{-m} output model name, mandatory
+\item{-s} single run mode to test a copule of parameters
 \end{description}
 
 
