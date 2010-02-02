@@ -92,6 +92,22 @@ string-kernel. Thus the substrings are sorted and are univocally
 identified through a numerical id which has associated the number of its 
 occurrences into the protein.
 
+\subsection{String Kernel}
+The preprocessing approach implemented in the project is the string
+kernel. In fact the algorithm retrieves all the substrings of a given
+dimension, selected by the user, present in the dataset.
+Each substring is a feature of the examples, and its value is the number
+of occurrences found in the protein. 
+
+The entire set of substring is sorted alphabetically and an unique id is
+assigned to each of them. 
+The representation of a protein is a vector containing the number of
+occurrences of the different substrings.
+
+In order to optimize the time needed for converting a string describing a
+protein into its corresponding vector the actual implementation relies on
+hashsets (Python dictionaries) for storing the list of substrings and
+retrieve their ids easily.
 
 \section{ALGORITHMS}
 %Description of algorithms adopted
