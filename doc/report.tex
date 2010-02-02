@@ -31,7 +31,7 @@ appears. The results of the protein's classification is the highest probability
 of membership to a classifier.
 
 In order to achieve best performance, all the SVMs have been tuned through 
-cross validation operating on two major parameters. The best set of paramter
+cross validation operating on two major parameters. The best set of parameter
 which maximize the F-measure is considered the final choice to train a
 SVM.
 
@@ -43,7 +43,7 @@ all the computation has been conducted to discuss the obtained results.
 \section{PROBLEM}
 The problem of Protein subcellar localization aims to guess the position of a 
 given protein in the cellular context knowing its structure. There are four 
-possible place where a protein may lie once synthesized: Cytoplasm, Nucleus, 
+possible place where a protein may lies once synthesized: Cytoplasm, Nucleus, 
 Mitochondrion and Secretory.  
 Each protein is composed by a sequence of amino-acids, that technically is a 
 string of letters which represent its one-dimensional structure. 
@@ -116,12 +116,17 @@ The evaluation of the model obtained setting the \emph{C} parameter, for
 the SVM, and the $ \gamma $ parameter, for the kernel, is performed maximizing 
 the F-measure as in \ref{f_meas} obtained using the training set for learning and
 the validation set to perform the measurements. The F-measure is a general index
-that allows to maximize both Precision and Recall measurements.
+that allows to maximize both Precision and Recall measurements, so through that is
+assured that the program will reach a good performance about the quality of the 
+classification.
 
 \begin{equation}
 F-measure = 2 * \frac{Precision * Recall}{Precision + Recall}
 \label{fmeas}
 \end{equation}
+
+\subsection{One-vs-All approach}
+The one-vs-all approach 
 
 During the validation phase, each single SVM iterate on a defined range of \emph{C} and
 $ \gamma $ looking for that couple that obtain the best performances. Since each
