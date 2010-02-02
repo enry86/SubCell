@@ -168,25 +168,21 @@ def plot(clp,data):
             
             ind = 1
             threshold = 0.00020
-            txt = "Gamma fixed < " + str(threshold)
+            #txt = "Gamma fixed < " + str(threshold)
             if clp['C'] != None:
                 ind = 0
                 threshold = clp['C']
-                txt = "C fixed < " + str(threshold)
             elif clp['g'] != None:
                 ind = 1
                 threshold = clp['g']
-                txt = "Gamma fixed < " + str(threshold)
-            pyp.suptitle(d + ' - ' + log[:-4] + ' -- ' + txt)
-            
+            pyp.suptitle(log[7:-4])
+
             for element in data[d][log]:
                 if element[ind] < threshold:
                     values.append([element[ (ind - 1) % 2 ], element[2]])
 
             values.sort()
-            print values
             clean(values)
-            print "POST\n", values
             x = map(operator.itemgetter(0), values)
 
             filename = ('plot/' + d + '/' + d + '-' + log[:-4])

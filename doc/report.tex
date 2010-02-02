@@ -1,5 +1,6 @@
 \documentclass{acm_proc_article-sp-sigmod07}
 
+
 \begin{document}
 
 \title{Protein subcelluar localization}
@@ -107,8 +108,8 @@ Function kernel, in \ref{RBF}, since during the preliminary tests they give the 
 performances. 
 
 \begin{equation}
-\label{RBF}
  K(\bold{x}_i , \bold{x}_j ) = \exp{(-\gamma\|\bold{x}_i - \bold{x}j\|^2 )}, \gamma > 0
+\label{RBF}
 \end{equation}
 
 The evaluation of the model obtained setting the \emph{C} parameter, for
@@ -178,14 +179,14 @@ While for the \emph{C} parameter there wasn't a real deal to afford, the
 $ \gamma $ parameter is found to be around the theoretical value of:
 
 \begin{equation}
-\frac{1}{VC-dimension}
+\frac{1}{DSdimension}
 \label{gamma}
 \end{equation}
 
-where the \emph{VC-dimension} is the number of feature that represent the
+where the \emph{DSdimension} is the number of samples of the dataset of the
 problems. In the run experiments was considered a set build up of two, three and
 five k-grams and the overall number of features was around six houndred and 
-thirty thousand, for which the value expressed by \ref{gamma} is 0.000001587.
+thirty thousand, for which the value expressed by \ref{gamma} is 0.0005.
 
 In order to face the difficulty of prediction on two problematic locations,
 which are Cytoplasm and Mitochondrion, the parameter \emph{weight} for the
@@ -211,30 +212,30 @@ comparison.
 \begin{figure*}
 \label{fig:K235W2N5}
 \centering
-\epsfig{file=plot/K235W2N5/K235W2N5-tuning-Cytoplasm.png,scale=0.35}
-\epsfig{file=plot/K235W2N5/K235W2N5-tuning-Nucleus.png,scale=0.35}
-\epsfig{file=plot/K235W2N5/K235W2N5-tuning-Mitochondrion.png,scale=0.35}
-\epsfig{file=plot/K235W2N5/K235W2N5-tuning-Secretory.png,scale=0.35}
+\epsfig{file=plot/K235W2N5/K235W2N5-tuning-Cytoplasm.ps,scale=0.35}
+\epsfig{file=plot/K235W2N5/K235W2N5-tuning-Nucleus.ps,scale=0.35}
+\epsfig{file=plot/K235W2N5/K235W2N5-tuning-Mitochondrion.ps,scale=0.35}
+\epsfig{file=plot/K235W2N5/K235W2N5-tuning-Secretory.ps,scale=0.35}
 \caption{Experiment with K = 2,3,5; W = 2; N = 5;}
 \end{figure*}
 
 \begin{figure*}
 \label{fig:K235W5N5}
 \centering
-\epsfig{file=plot/K235W5N5/K235W5N5-tuning-Cytoplasm.png,scale=0.35}
-\epsfig{file=plot/K235W5N5/K235W5N5-tuning-Nucleus.png,scale=0.35}
-\epsfig{file=plot/K235W5N5/K235W5N5-tuning-Mitochondrion.png,scale=0.35}
-\epsfig{file=plot/K235W5N5/K235W5N5-tuning-Secretory.png,scale=0.35}
+\epsfig{file=plot/K235W5N5/K235W5N5-tuning-Cytoplasm.ps,scale=0.35}
+\epsfig{file=plot/K235W5N5/K235W5N5-tuning-Nucleus.ps,scale=0.35}
+\epsfig{file=plot/K235W5N5/K235W5N5-tuning-Mitochondrion.ps,scale=0.35}
+\epsfig{file=plot/K235W5N5/K235W5N5-tuning-Secretory.ps,scale=0.35}
 \caption{Experiment with K = 2,3,5; W = 5; N = 5;}
 \end{figure*}
 
 \begin{figure*}
 \label{fig:K235W5N5-II}
 \centering
-\epsfig{file=plot/K235W5N5-II/K235W5N5-II-tuning-Cytoplasm.png,scale=0.35}
-\epsfig{file=plot/K235W5N5-II/K235W5N5-II-tuning-Nucleus.png,scale=0.35}
-\epsfig{file=plot/K235W5N5-II/K235W5N5-II-tuning-Mitochondrion.png,scale=0.35}
-\epsfig{file=plot/K235W5N5-II/K235W5N5-II-tuning-Secretory.png,scale=0.35}
+\epsfig{file=plot/K235W5N5-II/K235W5N5-II-tuning-Cytoplasm.ps,scale=0.35}
+\epsfig{file=plot/K235W5N5-II/K235W5N5-II-tuning-Nucleus.ps,scale=0.35}
+\epsfig{file=plot/K235W5N5-II/K235W5N5-II-tuning-Mitochondrion.ps,scale=0.35}
+\epsfig{file=plot/K235W5N5-II/K235W5N5-II-tuning-Secretory.ps,scale=0.35}
 \caption{Experiment with K = 2,3,5; W = 5; N = 5;}
 \end{figure*}
 
@@ -242,10 +243,10 @@ comparison.
 \begin{figure*}
 \label{fig:K235W5N5603010}
 \centering
-\epsfig{file=plot/K235W5N5603010/K235W5N5603010-tuning-Cytoplasm.png,scale=0.35}
-\epsfig{file=plot/K235W5N5603010/K235W5N5603010-tuning-Nucleus.png,scale=0.35}
-\epsfig{file=plot/K235W5N5603010/K235W5N5603010-tuning-Mitochondrion.png,scale=0.35}
-\epsfig{file=plot/K235W5N5603010/K235W5N5603010-tuning-Secretory.png,scale=0.35}
+\epsfig{file=plot/K235W5N5603010/K235W5N5603010-tuning-Cytoplasm.ps,scale=0.35}
+\epsfig{file=plot/K235W5N5603010/K235W5N5603010-tuning-Nucleus.ps,scale=0.35}
+\epsfig{file=plot/K235W5N5603010/K235W5N5603010-tuning-Mitochondrion.ps,scale=0.35}
+\epsfig{file=plot/K235W5N5603010/K235W5N5603010-tuning-Secretory.ps,scale=0.35}
 \caption{Experiment with K = 2,3,5; W = 5; N = 5; the training set is 60\%, the
 valiation dataset is 30\% and the test dataset is 10\%;}
 \end{figure*}
@@ -253,33 +254,33 @@ valiation dataset is 30\% and the test dataset is 10\%;}
 \begin{figure*}
 \label{fig:fast_K235W10N7}
 \centering
-\epsfig{file=plot/fast_K235W10N7/fast_K235W10N7-tuning-Cytoplasm.png,scale=0.35}
-\epsfig{file=plot/fast_K235W10N7/fast_K235W10N7-tuning-Nucleus.png,scale=0.35}
-\epsfig{file=plot/fast_K235W10N7/fast_K235W10N7-tuning-Mitochondrion.png,scale=0.35}
-\epsfig{file=plot/fast_K235W10N7/fast_K235W10N7-tuning-Secretory.png,scale=0.35}
-\caption{Experiment with K = 2,3,5; W = 10; N = 7; the training set is 60\%, the
-validation set is 30\% and the test set is 10\%;}
+\epsfig{file=plot/fast_K235W10N7/fast_K235W10N7-tuning-Cytoplasm.ps,scale=0.35}
+\epsfig{file=plot/fast_K235W10N7/fast_K235W10N7-tuning-Nucleus.ps,scale=0.35}
+\epsfig{file=plot/fast_K235W10N7/fast_K235W10N7-tuning-Mitochondrion.ps,scale=0.35}
+\epsfig{file=plot/fast_K235W10N7/fast_K235W10N7-tuning-Secretory.ps,scale=0.35}
+\caption{Experiment with K = 2,3,5; W = 10; N = 7; the training set is 20\%, the
+validation set is 20\% and the test set is 60\%;}
 \end{figure*}
 
 \begin{figure*}
 \label{fig:fast_K235W10N5ng}
 \centering
-\epsfig{file=plot/fast_K235W10N5ng/fast_K235W10N5ng-tuning-Cytoplasm.png,scale=0.35}
-\epsfig{file=plot/fast_K235W10N5ng/fast_K235W10N5ng-tuning-Nucleus.png,scale=0.35}
-\epsfig{file=plot/fast_K235W10N5ng/fast_K235W10N5ng-tuning-Mitochondrion.png,scale=0.35}
-\epsfig{file=plot/fast_K235W10N5ng/fast_K235W10N5ng-tuning-Secretory.png,scale=0.35}
+\epsfig{file=plot/fast_K235W10N5ng/fast_K235W10N5ng-tuning-Cytoplasm.ps,scale=0.35}
+\epsfig{file=plot/fast_K235W10N5ng/fast_K235W10N5ng-tuning-Nucleus.ps,scale=0.35}
+\epsfig{file=plot/fast_K235W10N5ng/fast_K235W10N5ng-tuning-Mitochondrion.ps,scale=0.35}
+\epsfig{file=plot/fast_K235W10N5ng/fast_K235W10N5ng-tuning-Secretory.ps,scale=0.35}
 \caption{Experiment with K = 2,3,5; W = 10; N = 5; gamma range of [0.000050,  0.001000];
-the training set is 60\%, the validation set is 30\% and the testing set
-is 10\%;}
+the training set is 20\%, the validation set is 20\% and the testing set
+is 60\%;}
 \end{figure*}
 
 \begin{figure*}
 \label{fig:K235W10N5}
 \centering
-\epsfig{file=plot/K235W10N5/K235W10N5-tuning-Cytoplasm.png,scale=0.35}
-\epsfig{file=plot/K235W10N5/K235W10N5-tuning-Nucleus.png,scale=0.35}
-\epsfig{file=plot/K235W10N5/K235W10N5-tuning-Mitochondrion.png,scale=0.35}
-\epsfig{file=plot/K235W10N5/K235W10N5-tuning-Secretory.png,scale=0.35}
+\epsfig{file=plot/K235W10N5/K235W10N5-tuning-Cytoplasm.ps,scale=0.35}
+\epsfig{file=plot/K235W10N5/K235W10N5-tuning-Nucleus.ps,scale=0.35}
+\epsfig{file=plot/K235W10N5/K235W10N5-tuning-Mitochondrion.ps,scale=0.35}
+\epsfig{file=plot/K235W10N5/K235W10N5-tuning-Secretory.ps,scale=0.35}
 \caption{Experiment with K = 2,3,5; W = 10; N = 5; gamma range is
 [0.000031,  0.500000]}
 \end{figure*}
@@ -287,10 +288,10 @@ is 10\%;}
 \begin{figure*}
 \label{fig:K235W10N5G2}
 \centering
-\epsfig{file=plot/K235W10N5G2/K235W10N5G2-tuning-Cytoplasm.png,scale=0.35}
-\epsfig{file=plot/K235W10N5G2/K235W10N5G2-tuning-Nucleus.png,scale=0.35}
-\epsfig{file=plot/K235W10N5G2/K235W10N5G2-tuning-Mitochondrion.png,scale=0.35}
-\epsfig{file=plot/K235W10N5G2/K235W10N5G2-tuning-Secretory.png,scale=0.35}
+\epsfig{file=plot/K235W10N5G2/K235W10N5G2-tuning-Cytoplasm.ps,scale=0.35}
+\epsfig{file=plot/K235W10N5G2/K235W10N5G2-tuning-Nucleus.ps,scale=0.35}
+\epsfig{file=plot/K235W10N5G2/K235W10N5G2-tuning-Mitochondrion.ps,scale=0.35}
+\epsfig{file=plot/K235W10N5G2/K235W10N5G2-tuning-Secretory.ps,scale=0.35}
 \caption{Experiment with K = 2,3,5; W = 10; N = 5; gamma range is 
 [0.000001,  0.000060]}
 \end{figure*}
@@ -298,10 +299,10 @@ is 10\%;}
 \begin{figure*}
 \label{fig:K235W10N5G001-9}
 \centering
-\epsfig{file=plot/K235W10N5G001-9/K235W10N5G001-9-tuning-Cytoplasm.png,scale=0.35}
-\epsfig{file=plot/K235W10N5G001-9/K235W10N5G001-9-tuning-Nucleus.png,scale=0.35}
-\epsfig{file=plot/K235W10N5G001-9/K235W10N5G001-9-tuning-Mitochondrion.png,scale=0.35}
-\epsfig{file=plot/K235W10N5G001-9/K235W10N5G001-9-tuning-Secretory.png,scale=0.35}
+\epsfig{file=plot/K235W10N5G001-9/K235W10N5G001-9-tuning-Cytoplasm.ps,scale=0.35}
+\epsfig{file=plot/K235W10N5G001-9/K235W10N5G001-9-tuning-Nucleus.ps,scale=0.35}
+\epsfig{file=plot/K235W10N5G001-9/K235W10N5G001-9-tuning-Mitochondrion.ps,scale=0.35}
+\epsfig{file=plot/K235W10N5G001-9/K235W10N5G001-9-tuning-Secretory.ps,scale=0.35}
 \caption{Experiment with K = 2,3,5; W = 10; N = 5; gamma range is
 [0.0000001, 0.00009]}
 \end{figure*}
@@ -309,10 +310,10 @@ is 10\%;}
 \begin{figure*}
 \label{fig:K235W10N5G50-300}
 \centering
-\epsfig{file=plot/K235W10N5G50-300/K235W10N5G50-300-tuning-Cytoplasm.png,scale=0.35}
-\epsfig{file=plot/K235W10N5G50-300/K235W10N5G50-300-tuning-Nucleus.png,scale=0.35}
-\epsfig{file=plot/K235W10N5G50-300/K235W10N5G50-300-tuning-Mitochondrion.png,scale=0.35}
-\epsfig{file=plot/K235W10N5G50-300/K235W10N5G50-300-tuning-Secretory.png,scale=0.35}
+\epsfig{file=plot/K235W10N5G50-300/K235W10N5G50-300-tuning-Cytoplasm.ps,scale=0.35}
+\epsfig{file=plot/K235W10N5G50-300/K235W10N5G50-300-tuning-Nucleus.ps,scale=0.35}
+\epsfig{file=plot/K235W10N5G50-300/K235W10N5G50-300-tuning-Mitochondrion.ps,scale=0.35}
+\epsfig{file=plot/K235W10N5G50-300/K235W10N5G50-300-tuning-Secretory.ps,scale=0.35}
 \caption{Experiment with K = 2,3,5; W = 10; N = 5; gamma range is
 [0.00005, 0.0003]}
 \end{figure*}
@@ -320,10 +321,10 @@ is 10\%;}
 \begin{figure*}
 \label{fig:K235W10N5ng}
 \centering
-\epsfig{file=plot/K235W10N5ng/K235W10N5ng-tuning-Cytoplasm.png,scale=0.35}
-\epsfig{file=plot/K235W10N5ng/K235W10N5ng-tuning-Nucleus.png,scale=0.35}
-\epsfig{file=plot/K235W10N5ng/K235W10N5ng-tuning-Mitochondrion.png,scale=0.35}
-\epsfig{file=plot/K235W10N5ng/K235W10N5ng-tuning-Secretory.png,scale=0.35}
+\epsfig{file=plot/K235W10N5ng/K235W10N5ng-tuning-Cytoplasm.ps,scale=0.35}
+\epsfig{file=plot/K235W10N5ng/K235W10N5ng-tuning-Nucleus.ps,scale=0.35}
+\epsfig{file=plot/K235W10N5ng/K235W10N5ng-tuning-Mitochondrion.ps,scale=0.35}
+\epsfig{file=plot/K235W10N5ng/K235W10N5ng-tuning-Secretory.ps,scale=0.35}
 \caption{Experiment with K = 2,3,5; W = 10; N = 5; gamma range is
  [0.000001,  0.000060]}
 \end{figure*}
@@ -331,41 +332,41 @@ is 10\%;}
 \begin{figure*}
 \label{fig:fast_K235W10N7bigC}
 \centering
-\epsfig{file=plot/fast_K235W10N7bigC/fast_K235W10N7bigC-tuning-Cytoplasm.png,scale=0.35}
-\epsfig{file=plot/fast_K235W10N7bigC/fast_K235W10N7bigC-tuning-Nucleus.png,scale=0.35}
-\epsfig{file=plot/fast_K235W10N7bigC/fast_K235W10N7bigC-tuning-Mitochondrion.png,scale=0.35}
-\epsfig{file=plot/fast_K235W10N7bigC/fast_K235W10N7bigC-tuning-Secretory.png,scale=0.35}
+\epsfig{file=plot/fast_K235W10N7bigC/fast_K235W10N7bigC-tuning-Cytoplasm.ps,scale=0.35}
+\epsfig{file=plot/fast_K235W10N7bigC/fast_K235W10N7bigC-tuning-Nucleus.ps,scale=0.35}
+\epsfig{file=plot/fast_K235W10N7bigC/fast_K235W10N7bigC-tuning-Mitochondrion.ps,scale=0.35}
+\epsfig{file=plot/fast_K235W10N7bigC/fast_K235W10N7bigC-tuning-Secretory.ps,scale=0.35}
 \caption{Experiment with K = 2,3,5; W = 10; N = 7; [0.031250, 262144]; training set is 
-60\%, the validation set is 30\% and the test set is 10\%;}
+20\%, the validation set is 20\% and the test set is 60\%;}
 \end{figure*}
 
 \begin{figure*}
 \label{fig:K235W15N5}
 \centering
-\epsfig{file=plot/K235W15N5/K235W15N5-tuning-Cytoplasm.png,scale=0.35}
-\epsfig{file=plot/K235W15N5/K235W15N5-tuning-Nucleus.png,scale=0.35}
-\epsfig{file=plot/K235W15N5/K235W15N5-tuning-Mitochondrion.png,scale=0.35}
-\epsfig{file=plot/K235W15N5/K235W15N5-tuning-Secretory.png,scale=0.35}
+\epsfig{file=plot/K235W15N5/K235W15N5-tuning-Cytoplasm.ps,scale=0.35}
+\epsfig{file=plot/K235W15N5/K235W15N5-tuning-Nucleus.ps,scale=0.35}
+\epsfig{file=plot/K235W15N5/K235W15N5-tuning-Mitochondrion.ps,scale=0.35}
+\epsfig{file=plot/K235W15N5/K235W15N5-tuning-Secretory.ps,scale=0.35}
 \caption{Experiment with K = 2,3,5; W = 15; N = 5;}
 \end{figure*}
 
 \begin{figure*}
 \label{fig:K235W100N5}
 \centering
-\epsfig{file=plot/K235W100N5/K235W100N5-tuning-Cytoplasm.png,scale=0.35}
-\epsfig{file=plot/K235W100N5/K235W100N5-tuning-Nucleus.png,scale=0.35}
-\epsfig{file=plot/K235W100N5/K235W100N5-tuning-Mitochondrion.png,scale=0.35}
-\epsfig{file=plot/K235W100N5/K235W100N5-tuning-Secretory.png,scale=0.35}
+\epsfig{file=plot/K235W100N5/K235W100N5-tuning-Cytoplasm.ps,scale=0.35}
+\epsfig{file=plot/K235W100N5/K235W100N5-tuning-Nucleus.ps,scale=0.35}
+\epsfig{file=plot/K235W100N5/K235W100N5-tuning-Mitochondrion.ps,scale=0.35}
+\epsfig{file=plot/K235W100N5/K235W100N5-tuning-Secretory.ps,scale=0.35}
 \caption{Experiment with K = 2,3,5; W = 100; N = 5;}
 \end{figure*}
 
 \begin{figure*}
 \label{fig:K235W1000N7}
 \centering
-\epsfig{file=plot/K235W1000N7/K235W1000N7-tuning-Cytoplasm.png,scale=0.35}
-\epsfig{file=plot/K235W1000N7/K235W1000N7-tuning-Nucleus.png,scale=0.35}
-\epsfig{file=plot/K235W1000N7/K235W1000N7-tuning-Mitochondrion.png,scale=0.35}
-\epsfig{file=plot/K235W1000N7/K235W1000N7-tuning-Secretory.png,scale=0.35}
+\epsfig{file=plot/K235W1000N7/K235W1000N7-tuning-Cytoplasm.ps,scale=0.35}
+\epsfig{file=plot/K235W1000N7/K235W1000N7-tuning-Nucleus.ps,scale=0.35}
+\epsfig{file=plot/K235W1000N7/K235W1000N7-tuning-Mitochondrion.ps,scale=0.35}
+\epsfig{file=plot/K235W1000N7/K235W1000N7-tuning-Secretory.ps,scale=0.35}
 \caption{Experiment with K = 2,3,5; W = 1000; N = 7;}
 \end{figure*}
 
