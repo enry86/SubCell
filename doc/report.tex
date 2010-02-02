@@ -18,17 +18,10 @@ the overall reliability.
 
 \section{INTRODUCTION}
 The main objective of this work is to predict the position of a protein with 
-respect to the cell and its structure. Each protein is composed by a sequence
-of amino-acids, that is a string of letters which represent its one-dimensional
-structure. The target is to localize the protein considering the
-cell environment, in particular, define if it belongs into one of the following
-possibilities: the Cytoplasm, the Nucleus, the Mitochondria or if it's Secreted
-by the cell.
-
-The classifier works on a dataset formed by animal proteins which belong to 
-different Natural Kingdoms. Changing the Kingdom changes also the position
-of the protein in the cell environment. By the scope of the classification,
-it is no important what Kingdom the cell belongs to.
+respect to the cell and its structure. The target is to localize the protein 
+considering the cell environment, in particular, define if it belongs into 
+one of the following possibilities: the Cytoplasm, the Nucleus, 
+the Mitochondria or if it's Secreted by the cell.
 
 To perform the classification, a one-vs-all approach was chosen building a
 classifier composed by four classifiers, based on Support Vector Machines (SVM),
@@ -36,759 +29,351 @@ each of them specialized one of the possible localization where the protein can
 appears. The results of the protein's classification is the highest probability 
 of membership to a classifier.
 
+In order to achieve best performance, all the SVMs have been tuned through 
+cross validation operating on two major parameters. The best set of paramter
+which maximize the F-measure is considered the final choice to train a
+SVM.
+
 Several experiments have been performed in order to evaluate the range of 
-possible training parameters which affects the single SVM.
+possible training parameters which affects the single SVM, a survey about
+all the computation has been conducted to discuss the obtained results.
+
 
 \section{PROBLEM}
+The problem of Protein subcellar localization aims to guess the position of a 
+given protein in the cellular context knowing its structure. There are four 
+possible place where a protein may lie once synthesized: Cytoplasm, Nucleus, 
+Mitochondrion and Secretory.  
+Each protein is composed by a sequence of amino-acids, that technically is a 
+string of letters which represent its one-dimensional structure. 
+
+The provided  dataset is formed by animal proteins which belong to 
+different Natural Kingdoms. Changing the Kingdom changes also the position
+of the protein in the cell environment. However, by the scope of the current
+classification, it is no important knowing what Kingdom the cell belongs to.
+The dataset is composed by four dataset file, related t  the sequences of
+amino-acids coming from a specific location.
+
+To build the classifier it has been chosen the Support Vector approach, defining
+a trained SVM for each localization. The classifier will query the four SVM and
+it take the prediction which has the major probability to belong into the class.
+
 
 \section{PREPROCESSING DATA}
-\\Description of phases conducted to prepare data for learning algorithms
+%Description of phases conducted to prepare data for learning algorithms
+Data are given in a plain text file, where an entry is composed by two rows.
+The first row is the name of the animal studied, while the second is the
+one-dimensional protein structure as following:
+
+\begin{verbatim}
+>ADA2_HUMAN
+MDRLGSFSNDPSDKPPCRGCSSYLMEPYIKCAECGPPPFFLCLQCFTRGFE
+YKKHQSDHTYEIMTSDFPVLDPSWTAQEEMALLEAVMDCGFGNWQDVANQM
+CTKTKEECEKHYMKHFINNPLFASTLLNLKQAEEAKTADTAIPFHSTDDPP
+RPTFDSLLSRDMAGYMPARADFIEEFDNYAEWDLRDIDFVEDDSDILHALK
+MAVVDIYHSRLKERQRRKKIIRDHGLINLRKFQLMERRYPKEVQDLYETMR
+RFARIVGPVEHDKFIESHALEFELRREIKRLQEYRTAGITNFCSARTYDHL
+KKTREEERLKRTMLSEVLQYIQDSSACQQWLRRQADIDSGLSPSIPMASNS
+GRRSAPPLNLTGLPGTEKLNEKEKELCQMVRLVPGAYLEYKSALLNECNKQ
+GGLRLAQARALIKIDVNKTRKIYDFLIREGYITKG
+\end{verbatim}
+
+Since the main objective is to maximize the result, it has been applied the 
+cross-validation methodology, splitting each dataset in three compounds: the
+training, the validation and the testing. The procedure effectively reads each 
+line of the dataset and in the training phase choose randomly in which fold it 
+will belong.
+
+In order to elaborate data, the protein samples need to be acquired in a easy 
+computable way, that is splitting each one-dimensional sequence into substrings
+of different dimension. The data structure obtained is effectively a 
+string-kernel. Thus the substrings are sorted and are univocally 
+identified through a numerical id which has associated the number of its 
+occurrences into the protein.
+
 
 \section{ALGORITHMS}
-\\Description of algorithms adopted
+%Description of algorithms adopted
+The global view is of a classifier that is actually composed by four SVM tuned to
+achieve the best results in each of the possible prediction area. The final output
+of the program is the output prediction of the SVM which achieves the greatest 
+probability.
+
+For the SVM the chosen is the implementation of the algorithm given by 
+Chih-Chung Chang and Chih-Jen Lin \cite{libSVM} to take advantage by a well 
+known working core. 
+In particular, it has been chosen the C-SVM implementation with a Radial Basis 
+Function kernel, in \ref{RBF}, since during the preliminary tests they give the best 
+performances. 
+
+\begin{equation}
+\label{RBF}
+ K(\bold{x}_i , \bold{x}_j ) = \exp{(-\gamma\|\bold{x}_i - \bold{x}j\|^2 )}, \gamma > 0
+\end{equation}
+
+The evaluation of the model obtained setting the \emph{C} parameter, for
+the SVM, and the $ \gamma $ parameter, for the kernel, is performed maximizing 
+the F-measure as in \ref{f_meas} obtained using the training set for learning and
+the validation set to perform the measurements. The F-measure is a general index
+that allows to maximize both Precision and Recall measurements.
+
+\begin{equation}
+F-measure = 2 * \frac{Precision * Recall}{Precision + Recall}
+\label{fmeas}
+\end{equation}
+
+During the validation phase, each single SVM iterate on a defined range of \emph{C} and
+$ \gamma $ looking for that couple that obtain the best performances. Since each
+trainig phase is time expensive, it has been decided to perform a single skim
+of both ranges to find one possible couple and later take a closest range centered
+on that result to finer the research.
 
 \section{SOFTWARE STRUCTURE}
+The language chosen to implement the algorithm is python for its attitude to allow 
+good interface to the oriented object programming and data structures.
+Its major task based the work on the libSVM\cite[libSVM] that is written in C and 
+wrapped into python through a support library.
+
+The software is composed by two main executable programs and some modules.
+The first executable\footnote{subcell-train.py}
+works take as input the dataset directory and some parameters 
+to conduct the experiment and so build the model, that is saved into the working 
+directory once it has been tested. The second executable\footnote{subcell.py}
+permit to load into memory the model and use it for a new testing session.
+
+An outline of the possible options, for the ''subcell-train.py`` 
+is provided by the following list:
+\begin{description}
+\item{-t} percentage of how many samples to reserve to build the training dataset, 
+optional 
+\item{-v} percentage of how many samples to reserve to build the validation dataset, 
+mandatory
+\item{-k} dimension of the k-grams, mandatory
+\item{-C} fix a value for C parameter, optional
+\item{-g} fix a value for gamma parameter, optional
+\item{-n} number of interaction, optional
+\item{-w} penalty weight for the negative samples, optional
+\item{-m} output model name, mandatory
+\end{description}
+
 
 \section{WORKING METHOD}
-\\Description of experimental settings
+%Description of experimental settings
+In the beginning some general experiments have been run in order to test the
+available kernels, but by the results obtained was clear that the RBF kernel
+collected the main results. Hence it was chosen as fixed assumption to avoid
+expensive useless iterations.
+
+Several test was conducted to find the best range of iteration for the two
+parameters, finding that is the following:
+
+$$
+	\bold{C} = [0.03125, 131072]
+$$
+$$
+ 	\bold{\gamma} = [0.00006, 0.000001]
+$$
+
+While for the \emph{C} parameter there wasn't a real deal to afford, the 
+$ \gamma $ parameter is found to be around the theoretical value of:
+
+\begin{equation}
+\frac{1}{VC-dimension}
+\label{gamma}
+\end{equation}
+
+where the \emph{VC-dimension} is the number of feature that represent the
+problems. In the run experiments was considered a set build up of two, three and
+five k-grams and the overall number of features was around six houndred and 
+thirty thousand, for which the value expressed by \ref{gamma} is 0.000001587.
+
+In order to face the difficulty of prediction on two problematic locations,
+which are Cytoplasm and Mitochondrion, the parameter \emph{weight} for the
+negative examples was setted to different values, but the best result was 
+obtained with a value equal ten.
 
 \section{EXPERIMENTS}
-\\Results
+%Results
+The experiments was performed mainly considering the k-grams with two, three and
+five letters together, five iterations and a penalty weight about ten.
+The target was the trend of the F-measure in \ref{f_meas} depending the \emph{C}
+parameter, so the plots are about it.
+
+An observation is concerning the number of iterations, as well, the greater is 
+the better, but due to time consuming issue they were reduced to five since it
+is a good compromise by the heuristic. 
+
+Another relevant consideration is about the penalty weight. The best performance
+obtained have a weight of ten and was decided to keep the value to have a standard
+comparison.
+
+
+\begin{figure*}
+\label{fig:K235W2N5}
+\centering
+\epsfig{file=plot/K235W2N5/K235W2N5-tuning-Cytoplasm.png,scale=0.35}
+\epsfig{file=plot/K235W2N5/K235W2N5-tuning-Nucleus.png,scale=0.35}
+\epsfig{file=plot/K235W2N5/K235W2N5-tuning-Mitochondrion.png,scale=0.35}
+\epsfig{file=plot/K235W2N5/K235W2N5-tuning-Secretory.png,scale=0.35}
+\caption{Experiment with K = 2,3,5; W = 2; N = 5;}
+\end{figure*}
+
+\begin{figure*}
+\label{fig:K235W5N5}
+\centering
+\epsfig{file=plot/K235W5N5/K235W5N5-tuning-Cytoplasm.png,scale=0.35}
+\epsfig{file=plot/K235W5N5/K235W5N5-tuning-Nucleus.png,scale=0.35}
+\epsfig{file=plot/K235W5N5/K235W5N5-tuning-Mitochondrion.png,scale=0.35}
+\epsfig{file=plot/K235W5N5/K235W5N5-tuning-Secretory.png,scale=0.35}
+\caption{Experiment with K = 2,3,5; W = 5; N = 5;}
+\end{figure*}
+
+\begin{figure*}
+\label{fig:K235W5N5-II}
+\centering
+\epsfig{file=plot/K235W5N5-II/K235W5N5-II-tuning-Cytoplasm.png,scale=0.35}
+\epsfig{file=plot/K235W5N5-II/K235W5N5-II-tuning-Nucleus.png,scale=0.35}
+\epsfig{file=plot/K235W5N5-II/K235W5N5-II-tuning-Mitochondrion.png,scale=0.35}
+\epsfig{file=plot/K235W5N5-II/K235W5N5-II-tuning-Secretory.png,scale=0.35}
+\caption{Experiment with K = 2,3,5; W = 5; N = 5;}
+\end{figure*}
+
+
+\begin{figure*}
+\label{fig:K235W5N5603010}
+\centering
+\epsfig{file=plot/K235W5N5603010/K235W5N5603010-tuning-Cytoplasm.png,scale=0.35}
+\epsfig{file=plot/K235W5N5603010/K235W5N5603010-tuning-Nucleus.png,scale=0.35}
+\epsfig{file=plot/K235W5N5603010/K235W5N5603010-tuning-Mitochondrion.png,scale=0.35}
+\epsfig{file=plot/K235W5N5603010/K235W5N5603010-tuning-Secretory.png,scale=0.35}
+\caption{Experiment with K = 2,3,5; W = 5; N = 5; the training set is 60\%, the
+valiation dataset is 30\% and the test dataset is 10\%;}
+\end{figure*}
+
+\begin{figure*}
+\label{fig:fast_K235W10N7}
+\centering
+\epsfig{file=plot/fast_K235W10N7/fast_K235W10N7-tuning-Cytoplasm.png,scale=0.35}
+\epsfig{file=plot/fast_K235W10N7/fast_K235W10N7-tuning-Nucleus.png,scale=0.35}
+\epsfig{file=plot/fast_K235W10N7/fast_K235W10N7-tuning-Mitochondrion.png,scale=0.35}
+\epsfig{file=plot/fast_K235W10N7/fast_K235W10N7-tuning-Secretory.png,scale=0.35}
+\caption{Experiment with K = 2,3,5; W = 10; N = 7; the training set is 60\%, the
+validation set is 30\% and the test set is 10\%;}
+\end{figure*}
+
+\begin{figure*}
+\label{fig:fast_K235W10N5ng}
+\centering
+\epsfig{file=plot/fast_K235W10N5ng/fast_K235W10N5ng-tuning-Cytoplasm.png,scale=0.35}
+\epsfig{file=plot/fast_K235W10N5ng/fast_K235W10N5ng-tuning-Nucleus.png,scale=0.35}
+\epsfig{file=plot/fast_K235W10N5ng/fast_K235W10N5ng-tuning-Mitochondrion.png,scale=0.35}
+\epsfig{file=plot/fast_K235W10N5ng/fast_K235W10N5ng-tuning-Secretory.png,scale=0.35}
+\caption{Experiment with K = 2,3,5; W = 10; N = 5; gamma range of [0.000050,  0.001000];
+the training set is 60\%, the validation set is 30\% and the testing set
+is 10\%;}
+\end{figure*}
+
+\begin{figure*}
+\label{fig:K235W10N5}
+\centering
+\epsfig{file=plot/K235W10N5/K235W10N5-tuning-Cytoplasm.png,scale=0.35}
+\epsfig{file=plot/K235W10N5/K235W10N5-tuning-Nucleus.png,scale=0.35}
+\epsfig{file=plot/K235W10N5/K235W10N5-tuning-Mitochondrion.png,scale=0.35}
+\epsfig{file=plot/K235W10N5/K235W10N5-tuning-Secretory.png,scale=0.35}
+\caption{Experiment with K = 2,3,5; W = 10; N = 5; gamma range is
+[0.000031,  0.500000]}
+\end{figure*}
+
+\begin{figure*}
+\label{fig:K235W10N5G2}
+\centering
+\epsfig{file=plot/K235W10N5G2/K235W10N5G2-tuning-Cytoplasm.png,scale=0.35}
+\epsfig{file=plot/K235W10N5G2/K235W10N5G2-tuning-Nucleus.png,scale=0.35}
+\epsfig{file=plot/K235W10N5G2/K235W10N5G2-tuning-Mitochondrion.png,scale=0.35}
+\epsfig{file=plot/K235W10N5G2/K235W10N5G2-tuning-Secretory.png,scale=0.35}
+\caption{Experiment with K = 2,3,5; W = 10; N = 5; gamma range is 
+[0.000001,  0.000060]}
+\end{figure*}
+
+\begin{figure*}
+\label{fig:K235W10N5G001-9}
+\centering
+\epsfig{file=plot/K235W10N5G001-9/K235W10N5G001-9-tuning-Cytoplasm.png,scale=0.35}
+\epsfig{file=plot/K235W10N5G001-9/K235W10N5G001-9-tuning-Nucleus.png,scale=0.35}
+\epsfig{file=plot/K235W10N5G001-9/K235W10N5G001-9-tuning-Mitochondrion.png,scale=0.35}
+\epsfig{file=plot/K235W10N5G001-9/K235W10N5G001-9-tuning-Secretory.png,scale=0.35}
+\caption{Experiment with K = 2,3,5; W = 10; N = 5; gamma range is
+[0.0000001, 0.00009]}
+\end{figure*}
+
+\begin{figure*}
+\label{fig:K235W10N5G50-300}
+\centering
+\epsfig{file=plot/K235W10N5G50-300/K235W10N5G50-300-tuning-Cytoplasm.png,scale=0.35}
+\epsfig{file=plot/K235W10N5G50-300/K235W10N5G50-300-tuning-Nucleus.png,scale=0.35}
+\epsfig{file=plot/K235W10N5G50-300/K235W10N5G50-300-tuning-Mitochondrion.png,scale=0.35}
+\epsfig{file=plot/K235W10N5G50-300/K235W10N5G50-300-tuning-Secretory.png,scale=0.35}
+\caption{Experiment with K = 2,3,5; W = 10; N = 5; gamma range is
+[0.00005, 0.0003]}
+\end{figure*}
+
+\begin{figure*}
+\label{fig:K235W10N5ng}
+\centering
+\epsfig{file=plot/K235W10N5ng/K235W10N5ng-tuning-Cytoplasm.png,scale=0.35}
+\epsfig{file=plot/K235W10N5ng/K235W10N5ng-tuning-Nucleus.png,scale=0.35}
+\epsfig{file=plot/K235W10N5ng/K235W10N5ng-tuning-Mitochondrion.png,scale=0.35}
+\epsfig{file=plot/K235W10N5ng/K235W10N5ng-tuning-Secretory.png,scale=0.35}
+\caption{Experiment with K = 2,3,5; W = 10; N = 5; gamma range is
+ [0.000001,  0.000060]}
+\end{figure*}
+
+\begin{figure*}
+\label{fig:fast_K235W10N7bigC}
+\centering
+\epsfig{file=plot/fast_K235W10N7bigC/fast_K235W10N7bigC-tuning-Cytoplasm.png,scale=0.35}
+\epsfig{file=plot/fast_K235W10N7bigC/fast_K235W10N7bigC-tuning-Nucleus.png,scale=0.35}
+\epsfig{file=plot/fast_K235W10N7bigC/fast_K235W10N7bigC-tuning-Mitochondrion.png,scale=0.35}
+\epsfig{file=plot/fast_K235W10N7bigC/fast_K235W10N7bigC-tuning-Secretory.png,scale=0.35}
+\caption{Experiment with K = 2,3,5; W = 10; N = 7; [0.031250, 262144]; training set is 
+60\%, the validation set is 30\% and the test set is 10\%;}
+\end{figure*}
+
+\begin{figure*}
+\label{fig:K235W15N5}
+\centering
+\epsfig{file=plot/K235W15N5/K235W15N5-tuning-Cytoplasm.png,scale=0.35}
+\epsfig{file=plot/K235W15N5/K235W15N5-tuning-Nucleus.png,scale=0.35}
+\epsfig{file=plot/K235W15N5/K235W15N5-tuning-Mitochondrion.png,scale=0.35}
+\epsfig{file=plot/K235W15N5/K235W15N5-tuning-Secretory.png,scale=0.35}
+\caption{Experiment with K = 2,3,5; W = 15; N = 5;}
+\end{figure*}
+
+\begin{figure*}
+\label{fig:K235W100N5}
+\centering
+\epsfig{file=plot/K235W100N5/K235W100N5-tuning-Cytoplasm.png,scale=0.35}
+\epsfig{file=plot/K235W100N5/K235W100N5-tuning-Nucleus.png,scale=0.35}
+\epsfig{file=plot/K235W100N5/K235W100N5-tuning-Mitochondrion.png,scale=0.35}
+\epsfig{file=plot/K235W100N5/K235W100N5-tuning-Secretory.png,scale=0.35}
+\caption{Experiment with K = 2,3,5; W = 100; N = 5;}
+\end{figure*}
+
+\begin{figure*}
+\label{fig:K235W1000N7}
+\centering
+\epsfig{file=plot/K235W1000N7/K235W1000N7-tuning-Cytoplasm.png,scale=0.35}
+\epsfig{file=plot/K235W1000N7/K235W1000N7-tuning-Nucleus.png,scale=0.35}
+\epsfig{file=plot/K235W1000N7/K235W1000N7-tuning-Mitochondrion.png,scale=0.35}
+\epsfig{file=plot/K235W1000N7/K235W1000N7-tuning-Secretory.png,scale=0.35}
+\caption{Experiment with K = 2,3,5; W = 1000; N = 7;}
+\end{figure*}
+
+
 
 \section{CONCLUSIONS}
-\section{}
-
-The first algorithm used for comparison is a common Decision Tree, in fact
-we wanted to have a comparison of the RDT approach with a commonly used
-and known method.
-The literature is rich of works about decision tree training and
-implementation. In particular \cite{quinlan:induction} gives a complete
-background of the basilar techniques used for the realization of such
-algorithms.
-
-In this work particular attention is posed into the various measures used
-to evaluate the best attribute to use to train the root of a decision
-tree.
-These techniques are presented in a more concrete way in a tutorial by
-Andrew Moore \cite{moore:dtree}. In this presentation the algorithm used is
-a decision tree based on information gain as splitting measure, and
-presents some ways to optimize and prune the obtained tree.
-For the information gain, the same author published a set of slides
-in which presents this measure and the way in which it can be computed.
-
-In this work the formal definition of information gain is equation
-\ref{infogain}.
-\begin{equation}
-IG(Y|X) = H(Y) - H(Y|X)
-\label{infogain}
-\end{equation}
-Where $Y$ represents the class and $X$ the attribute tested and the
-function $H$ is the entropy.
-This function gives a measure of the dispersion of the values in the
-dataset.
-
-In particular entropy if an attribute is defined as in equation
-\ref{entr}.
-\begin{equation}
-H(X) = -\sum_{j}^{m} p_j log_2(p_j)
-\label{entr}
-\end{equation}
-Where $p_j$ is defined as $P(X = V_j)$, the probability that X takes value
-$V_j$, and $m$ is the number of different values that $X$ admits.
-
-In formula \ref{infogain} appears even the function $H(Y|X)$, defined as
-conditional entropy in formula \ref{condentr}.
-\begin{equation}
-H(Y|X) = \sum_{j} p_j H(X| Y  = V_j)
-\label{condentr}
-\end{equation}
-This value gives the average of the entropy of the attribute $X$ over the
-portions of the dataset where $Y$ takes different values.
-In fact is the average weighted over the probability of the value $V_j$ of
-the specific conditional entropy $H(X| Y  = V_j)$, defined as the entropy
-of the attribute $X$ computed among the datapoints where the attribute $Y$
-has value $V_j$. 
-
-The second algorithm choosen for the comparison is the Random Decision
-Tree presented by Wei Fan in \cite{fan:rdt} which presents the idea to
-build a Decision Tree choosing, at each node, an attribute randomly. The
-choice is bind on the type of the attribute, in particular if the feature
-can assume values in a finite set of options it cannot be chosen again in
-the subtree rooted on it\footnote{For each value the attribute may assume
-a child is generated}. However if the feature is a continuous one, then
-a random threshold is choose to split the decision\footnote{The left child
-stands for elements that have the value for the attribute less than the
-threshold at the node and the right one for the ones which have value
-greater or equal than the threshold at the node.} and it can be chosen
-again several times in the same subtree accordingly with the ancestor's
-decision.
-
-To enhance the accuracy of the method, since the random choice may
-leads to different results, multiple trees are trained in order to
-approximate the true mean. Considering \emph{k} as the number of features
-of the dataset and \emph{N} as the number of trees, then the confidence
-probability to have is:
-\begin{equation}
-\label{formula:confidence}
-1 - ( 1 - \frac{1}{k})^N
-\end{equation}
-
-Considering the \emph{k} features of the dataset, and the \emph{i}
-classifying attributes, the most diversity among trees is with depth of 
-\begin{equation}
-\label{fig:depth}
-\frac{k}{2} 
-\end{equation}
-since is the maximum value of the combination
-\begin{equation}
- {{i}\choose{k}}
-\end{equation}
-
-Once the structure is ready the training may take place, in
-particular each tuple of the dataset train all the trees generated in
-order to read only one time the data. Each node counts how many
-numbers of examples go through it.
-
-At the end of the training the leaves contains the probability distribution
-of each class, in particular for the tree \emph{i}, considering
-\emph{n[y]} the number of instances of class \emph{y} at the node reached
-by x, is:
-\begin{equation}
-\label{formula:probability_tree}
-	P_i(\emph{y}|x) = \frac{n[\emph{y}]}{\sum_\emph{y} n[\emph{y}]}
-\end{equation}
-
-The classification phase retrieves the probability distribution from each
-tree and average on the number of trees generated in the model:
-\begin{equation}
-\label{formula:probability_forest}
-	P(\emph{y}|x) = \frac{1}{N} \sum_{i=1}^N P_i(\emph{y}|x)
-\end{equation}
-
-
-\section{PROBLEM DEFINITION}
-The main aim of this work is to produce a comparison between two different
-approaches to the classification task. In particular we are focusing our
-attention in analyzing the performances of a rather new approach (RDT),
-which uses random choices to build the decision tree, and a more common
-algorithm based on information gain.
-
-In order do to this, a reliable implementation of both the algorithms is
-needed, this permits to ground further analysis on reliable results.
-
-The measures used for comparison are three:
-\begin{itemize}
-\item The time taken to build the tree and eventually perform the
-classification task.
-\item The space used to store the tree structure.
-\item The accuracy obtained in the classification task.
-\end{itemize}
-
-The measure of the space used presented some difficulties, due to the
-dynamic typing feature of the language used. In order to solve this issue
-has been implemented a method which measures the memory used by an object
-referring to the correspondent primitive type of C. This technique is
-explained in details in following section.
-
-The accuracy can be verified in case of cross validation, classifying a
-set of previously known datapoints. This measure can vary depending on the
-dataset characteristics. For this reason is important to compare the
-results obtained by the two algorithms on the same datasets.
-
-\section{PROPOSED APPROACH}
-This section describes and discusses the choice taken during the
-development of the project. It will focus first on the implementation of
-the platform used for the algorithm comparison and the way it's intended
-to be used.
-Later the details about the implementation of the algorithms will be
-clarified.
-
-\subsection{Classification platform}
-This part of the project covers the task of managing the execution of the
-algorithms and the measurement of the performances. As for the
-classification algorithms, the language chosen for the implementation is
-Python, in order to have a more natural interface with the classifier.
-
-The main tasks which this section of the software performs, can be
-summarized as follows:
-\begin{itemize}
-\item Interpret the command line options;
-\item Execute the selected algorithm following the options given;
-\item Provide support for cross validation;
-\item Measure the performance obtained by the algorithm executed;
-\item Report the informations retrieved;
-\end{itemize}
-
-Before discuss the implementation details is useful give a quick reference
-about the usage of the system.
-
-\subsubsection{System usage}
-The platform implemented permits the setting of various options, needed
-for widen the possibility of performing tests with different algorithms.
-
-The general way in which the system operates is to use a dataset for train
-the classifier. Then the platform reads from test dataset and classifies
-the datapoints, finally the now classified data are stored in a third
-dataset.
-
-The user can specify the attribute to be used as class and a list of
-attributes to be ignored in the training task.
-
-One of the most relevant features is the support for cross validation,
-with the possibility to select the percentage of data to use for training
-and for testing.
-When cross validation is enabled is possible to compute a measure of
-accuracy of the algorithm. 
-
-Obviously is possible to select the desired algorithm to be used for the
-test. In addition to this is possible to choose a particular aspect of the
-algorithm itself.
-
-In fact, for the generic Decision Tree is possible to choose the number of
-threshold to be tested for the computation of the information gain for
-numerical data.
-A similar option is usable for the RDT, permitting to set the number of
-random tree to be generated.
-
-An outline of the possible options is provided by the following list:
-\begin{description}
-\item{-t} File containing the training dataset, mandatory
-\item{-d} File containing the testing dataset, mandatory if not in cross
-validation mode
-\item{-o} Output file, mandatory
-\item{-a} Name of the class attribute, mandatory
-\item{-c} Classifier (classifier\_name[,extra\_parameter]), optional
-(generic DT is the default choice), possible names are generalClass or
-randomDT
-\item{-i} List of ignored attributes, optional
-\item{-x} Percentage of splitting for cross validation, optional, enables
-cross validation
-\end{description}
-	
-Following the previous outline, an example of usage of the system could be
-this example:
-\begin{verbatim}
-./nukeminer.py -t training.arff -o output.arff \
-    -c randomDT,25 -a class -x 60
-\end{verbatim}
-
-Launched with this parameters the system executes a cross validation on
-the dataset training.arff, classifying on the attribute class. The system
-will use the 60\% of the data for training and the 40\% for testing. The
-output will be stored in the file output.arff, the algorithm used is the
-RDT and will use 25 random trees.
-
-At the end of the execution the system will output the time taken for
-train and test the classifier, the memory used to store the data structure
-used, and the accuracy reached in this execution.
-
-It's important to notice that the split of the dataset for the cross
-validation is performed following a random approach. In this way the
-original distribution of the data is preserved in both training and
-testing datasets.
-
-This is important to perform a good training of the classifier,
-particularly in datasets characterized by having most of the data all in a
-single class. This could lead to the situation in which there are no data
-belonging to minority class in the training dataset.
-Obviously this is a bad situation for training the algorithm.
-
-The technique used by this platform is to scan the dataset and decide for
-each datapoint if it belongs to the training or to the testing dataset,
-the probability of the outcome of this decision is the one specified by
-the user via command line.
-This technique assures a more fair division of the dataset.
-
-\subsubsection{File format}
-An important remark has to be done for the format of input/output files,
-in fact the platform uses a particular file format for handling the data.
-It's a simpler version of the ARFF syntax, adapted to fit the needs of the
-classification task to be performed.
-
-Is possible to define two types of data: numeric or string. The numeric
-type covers both integer and float values, while string is used for
-handling categorical data.
-
-For example the following lines represent the header of a dataset file:
-
-\begin{verbatim}
-@RELATION iris
-
-@ATTRIBUTE sepallength	numeric
-@ATTRIBUTE sepalwidth 	numeric
-@ATTRIBUTE petallength 	numeric
-@ATTRIBUTE petalwidth	numeric
-@ATTRIBUTE class string 
-
-@DATA
-\end{verbatim}
-
-This is the adapted header of the Iris dataset, after the keyword DATA
-is possible to write the tuples, as a list of values separated by a ','
-character, as in the following example:
-
-\begin{verbatim}
-@DATA
-5.1,3.5,1.4,0.2,Iris-setosa
-4.9,3.0,1.4,0.2,Iris-setosa
-4.7,3.2,1.3,0.2,Iris-setosa
-\end{verbatim}
-
-\subsubsection{Performance evaluation}
-The main objective of the platform is to provide a system able to measure
-the performance of a particular algorithm completing the task assigned.
-As said in the introduction the system bases the evaluation on three main
-measures: time, space and accuracy of the classification.
-
-The classification process goes through two main phases, the first one,
-the most long and difficult, is the construction of the decision tree,
-while the classification of unknown datapoints is generally a less
-demanding operation.
-
-The platform presented here can evaluate the time needed both for
-constructing the tree and for classifying a test dataset. 
-Even if the time needed for classifying a dataset is often a fraction of
-the time used for building the tree, the behaviour of different algorithms
-on this operation can be very important.
-
-An example of the importance of this value can be represented by the case
-of an on-line classifier. In this particular environment the time needed
-for classify a datapoint is a vital parameter for the evaluation of the
-performance of the algorithm.
-
-The technique used for evaluate the time spent on the whole classification
-task is fairly simple. In fact the platform simply measures the time
-elapsed between the start and the end of the process.
-
-Besides its simplicity and robustness, this approach presents some
-drawbacks. The main is that this way of measuring time performance is
-strictly dependent on the machine used for executing the test.
-Therefore in order to retrieve reliable result from a comparison between
-two algorithms is better to execute them on the same machine.
-
-Another problem is represented by the possibility of interferences from
-other programs and daemons running on the machine. These interferences can
-lead to a drop of performances in term of time.
-
-An alternative way of counting the time spent for the execution of the
-algorithm could be use, instead of the second elapsed, the clock cycles
-used by the program. 
-This measure unit would be less immediate to understand and less natural.
-
-During the development of the project has been preferred to use seconds as
-the measure unit, taking care of execute the program in controlled
-environment on a dedicated machine.
-
-The measure of the space is equally important, in fact the dimension of
-the dataset to analyze can be very huge, or theoretically infinite, as in
-the case of many application of online classifiers.
-This shows the importance of the measure of the space used for running the
-classification algorithm, the risk is to build a structure which cannot
-fit in the main memory of the machine used.
-
-For the algorithms implemented for this comparison, this case has not been
-considered, considering valid the assumption that the dataset can always
-fit in main memory.
-The reason of this choice is that implement some ways to reduce the
-footprint in memory of the structure used, maybe storing some less used
-branches of the tree on disk, could be very difficult to be realized in
-equal way between the two algorithms.
-
-The differences between the structures used in the two algorithms, are too
-relevant to assume that the same time will be spent in storing and reading
-the cached data from disk. These difference will corrupt the results in
-time evaluation.
-
-Moreover, avoiding the usage of caching techniques, is possible to
-retrieve a detailed picture of the actual memory usage of the algorithm at
-any time. 
-
-Another remark about measuring the memory used by the structure regards
-the language used for the implementation.
-In fact Python features dynamic typing, this poses difficulties in the
-evaluation of the actual amount of memory used to store a
-particular object.
-
-For dealing with this issue,the memory used by an object is computed using
-the size of the C primitives types corresponding to the Python types used.
-
-The last measure considered for evaluate the performances of the
-algorithm is the quality, or accuracy, of the classification performed. 
-This measure is very indicative in particular if compared with the time
-measure.
-In fact often, in many problems of computer science, the solution of a
-problem is a balance of the trade-off between time and quality.
-
-In the platform presented here the computation of the quality of the
-classification obtained is possible only when the system runs in cross
-validation mode. In fact, when performing this kind of test, is sure that
-even the testing dataset contains the correct classification.
-
-Therefore is easy to compare the classification computed by the algorithm
-with the real values in the dataset.
-The system finally computes the percentage of correctly classified
-datapoints over the size of the testing dataset.
-This value is considered the measure of the quality of the classification
-obtained.
-
-A possible drawback of this approach is represented by the particular
-situation in which a very large majority of the training datapoints
-belongs to the same class.
-The building of the decision tree, therefore, will be based on a large
-amount of informations from the largest class, while the other will be
-less represented in the final tree.
-
-A direct consequence of this is that the classifier will choose as class
-the major one more likely, generating many misclassifications for the
-least relevant class.
-
-The level of accuracy, anyway, will remain quite high, this because the
-large even in the test dataset the large majority of the data will belong
-to the most probable class. The elements in the least relevant class are
-so few that, even if most of them are not correctly classified, the
-accuracy level doesn't reflect this situation.
-
-\subsubsection{Reporting}
-The last task for the platform is to output some form of report
-illustrating the result obtained from an experiment.
-The method chosen for this platform is to implement a BASH script that
-manages the execution of the two algorithms several times with different
-parameter on a dataset.
-
-This script reads the output of the program and collect the useful data,
-writing the results in a format usable with the utility gnuplot for being
-transfered into charts.
-
-This method provides a simple way to have an intuitive comparison between the
-results of the two different algorithms.
-
-Once the script ends its cycle, the local directory ``plot'' will contain
-five graphs: accuracy.ps, training.ps, classification.ps, nodes.ps and
-memory.ps. The syntax of the tool is:
-\begin{verbatim}
-./evaluation.sh <dataset> <classification attribute>\
-     [<ignore attribute> <ignore attribute>]\
-     [--trees=<number>] [--thresholds=<number>]
-\end{verbatim}
-
-An example of use is the following:
-\begin{verbatim}
-./evaluation.sh iris.arff class sepallength\
-   --trees=5 --thresholds=3
-\end{verbatim}
-
-The script will execute both algorithms on the input dataset cross
-validated starting from 1\% to 100\% with step of ten percent classifying
-with respect to the attribute ``class'' and ignoring attribute
-``sepallength''. The parameter ``trees'' explicits the number of tree to be
-generated by the RDT algorithm, whereas the ``thresholds'' parameter
-explicits how many test must be done in the Decision Tree algorithm for
-each node.
-
-\subsection{Decision Tree}
-The first algorithm considered for the comparison is a generic Decision
-Tree. Has been chosen because it's a well known approach and is a good
-base for a comparison with another algorithm.
-
-The measure chosen for selecting the attribute on which split the dataset
-is the information gain.
-The computation of this measure on categorical values is quite a simple
-operation. When considering numerical values the situation changes, in
-fact considering the specific conditional entropy for every possible value
-assumed by a numerical attribute is a waste of resource and won't give
-reliable results.
-
-A different approach, followed in this implementation of the algorithm, is
-to compute the information gain of a threshold on which split the dataset.
-In this way a node is split in two children, one containing the data with
-the chosen attribute less than the selected threshold and the other
-containing the rest 
-
-To perform the computation of the information gain, the algorithms splits
-recursively the dataset owned by the node. 
-This operation is performed until is possible to compute the specific
-conditional entropy for the label with respect to each different attribute
-and its values.
-
-For the numeric values a similar behaviour is adopted, but, instead of
-splitting the dataset with respect to each different value of the
-attribute analyzed, the split is performed using a threshold.
-
-Another important operation to be performed before training a node is to
-select a set of candidate threshold for the numeric attributes, on which
-compute the information gain, and eventually split the node.
-In order to perform this task the algorithm sorts the values of the
-selected attributes and bucketizes it, following a equi-depth approach.
-
-Besides the cost in time for sorting the list of values, which is $n log
-n$ in the worst case (using the built in python implementation), this
-approach offers a more sharp way for threshold selection, than through a
-sample of the dataset.
-
-\subsection{Random Decision Tree}
-In the first implementation of the algorithm, that was rigorous to the
-pseudocode presented in \cite{fan:rdt} that is build the tree before the
-training, testing with a dataset having different discrete feature, such
-``Adult'', the tree generated was very big and the time to construct it was
-very expensive; in particular, building a tree having depth equals to the
-number of attributes, instead of the half, the Python interpreter
-aborted its execution due to memory problems.\footnote{In the test we
-conducted on a training dataset with 13 attributes, nine of them with
-more than six possible values, and 26065 elements, the number of node for
-the tree with depth 13 was over one million.}
-The tree presented by the pseudocode is the one with all possible values
-that features may assume but it can be rather empty once it has been
-trained in the case there are a lot of discrete features . Some tests
-on different datasets reveal that is not useful to produce a bigger tree if
-data can not fit it.
-
-In order to solve the problem the tree's building phase has been merged
-with the training phase and nodes are generated only if there is an element
-that can go through them. This lead to a compact tree where
-each node is crossed by at least one element.\footnote{With the same
-conditions as before, now the algorithm performs the train generating a
-tree with at least 4060 nodes.}
-
-If the training dataset is not expressive on the possible values
-the attribute can assume, the trained tree may be less accurate.
-Accordingly with the confidence in \ref{formula:confidence} the inverse
-formula
-\begin{equation}
-\label{formula:N_generate}
-N = \log_{1-\frac{1}{k}}({1 - \emph{confidence}})
-\end{equation}
-allows to calculate the numbers of tree to generate in a dynamic way. In
- particular if the number of examples to train the model is less than
-2000\footnote{Experimental tests conducted by Wei Fan show that this
-examples history is generally enough to have a good confidence even with a
-low number of tree generated.} the \emph{confidence} is set to 95\%,
-whereas if it is greater is set to 70\%. The tests conducted in all the
-datasets show the efficiency of the method in analyzed that improve the
-timing without any accuracy loss.
-
-The algorithm is contained in the ``randomDT.py'' Python file and consists
-of four classes. The main one is ``Classifier'' that allows to interface
-with the support class ``class\_mgr.py'' through the three default methods
-``train()'', ``classify()'' and ``get\_memory()''. Moreover the class is
-charged to remove the attributes to ignore and to perform the
-classification.
-
-The ``Forest'' class is a virtual representation of the set of trees
-generated. In particular the function ``best\_forest()'' configure the
-number of trees to generate accordingly with \ref{formula:N_generate}
-speeding up the execution, but maintaining the accuracy.
-
-The ``RandomDT'' class represent the Random Decision Tree, in particular
-in the initialization, if is requested a simple node, then a random
-element from the list of attributes given as parameter is chosen and the
-ranges, the second parameter, is on purpose modified: if the attribute is
-continuous then a random threshold is chosen accordingly with
-ranges and stored in ``threshold'', whereas in the case of a discrete
-feature, ``threshold'' will contain the possible values it can
-assume, coming from ranges from which will be deleted to avoid any fu
-rther choices in the subtree, and will be used to index the ``childs''
-field. The class offers also the method to retrieve the probability
-distribution as in \ref{formula:probability_tree} from the tree given the
-tuple to classify.
-
-The ``Trainer'' class aims to build and train the entire forest of RDTs.
-In particular the procedure ``build\_train()'' manages the retrieving and
-updating of the forest calling the recursive procedure
-``tree\_updating()'' which performs the building of the tree, updating the
-existing nodes. The latter procedure take distinction in generation about
-the two kind of foreseen attributes resulting the bigger slice of code in
-the algorithm.
-
-\section{Experimental Evaluation}
-The tests have been conducted on two different machines, but same
-architecture, and no relevant differences were observed. The datasets
-considered are not equally populated by the two kind of attributes
-foreseen and they may be not real ``representative'' of the distribution.
-
-In order to compare the two algorithms the ``Adult'' dataset was taken as
-primary check since it contains different kind of attributes and it is
-quite big. In particular the dataset present fifteen attributes, nine of
-them of string type, and classify over a string attribute, ``gain'',
-ignoring two numeric features, ``fnlwgt'' and ``education-num''. The
-command executed is:
-\begin{verbatim}
-./evaluation.sh adult.arff gain fnlwgt education-num
-\end{verbatim}
-
-Another interesting dataset used is the ``Xenon'', this dastaset contains
-samples of the concentration of four isotopes of the Xenon in the
-atmosphere. The dataset is divided into two classes, which say if the
-concentration levels are normal or the footprint of a nuclear weapon test.
-This dataset permits to evaluate the algorithms behaviour on numeric
-values.
-
-In figure \ref{fig:adult_standard} are shown all the output graphs
-obtained.  For a better comparison with Decision Tree the number of nodes
-for RDT algorithm is referred to a single tree, randomly chosen among the
-others.
-
-The \ref{fig:depth} assure a good reduction in terms of nodes and the
-choice has a direct results on the graph about the number of nodes
-generated.
-
-Considering the former dataset, the memory usage for the RDT is very high
-due to implementation that was focused on the comprehension rather the
-efficiency in order to simplify the readability. The huge employment comes
-from the storing of the values of the discrete features in the nodes to
-index the children. Since there are several trees this facilitation
-exploits with the number. In the test there was built sixteen trees, so the
-space allocation for a single tree, for the maximum case, is:
-$$ \frac{3500000}{16} Byte = 218750 Byte$$
-And so the single tree is proportional to the one built by the Decision
-Tree. The non-linear trend of the graph is due to the different tree
-structure generated at each step. Since the attribute to test in the node
-is purely a random choice it may happens that one of the nodes near to
-root is a discrete feature with a lot of sons and so the entire tree is
-conditioned by the choice.
-
-The number of trees has impact also in the training time and the
-classification time, of course. In particular for train a tuple the RDT
-algorithm spend on average 6.5\emph{ns} whereas to classify a tuple it
-spends on average 5.6\emph{ns}. It is rather efficient, but considering
-the whole forest of tree the time acquire a significant value. Considering
-the test at 80\%, the number of tuples trained are about 26000, whereas the
-tuples to classify are around 6500:
-$$
-26000 * 6.5\emph{ns} * 16 \sim 27 s
-$$
-$$
- 6500 * 5.6\emph{ns} * 16 \sim 5.8 s
-$$
-
-About the accuracy the RDT algorithm shows a stable accuracy, little
-better than the Decision algorithm.
-
-In figure \ref{fig:adult-50} are shown the results of the evaluation on
-the same datasets but generating fifty random decision trees. The
-\ref{formula:confidence} assures that the confidence is over 98\%, whereas
-with the sixteen trees generated  by the algorithm is over 72\%. However
-the accuracy is the same thank to the training data that are exhaustive
-for the dataset, but the training time is three time more than the first
-experiment due to the huge number of trees (analogous is the
-classification time, not shown).
-
-Similar analysis in figure \ref{fig:adult-10} where a test with ten
-random decision trees was conducted on the same dataset, with respect to
-the first experiment the gain in time is about 30\%, but accuracy is less
-stable; in fact with this number of trees the confidence in
-\ref{formula:confidence} results to be 55\%.
-
-Another experiment was to classify on ``occupation'' and the figure
-\ref{fig:adult-occupation} shows the differences between the two
-algorithms. The accuracy is quite low for both of them, but the Random
-Decision Tree has a 10\% on average a better prediction having a very
-compact tree gaining in training time. However the classification time is
-particular expensive.
-
-The second kind of tests was conducted in the completely different
-dataset, the ``Xenon'', since the major of its attributes is numeric.
-In figure \ref{fig:training_st_standard} the Random Decision Tree reach
-the best results with respect the previous experiments, even in the
-classification time that is influenced by the very small tree. In this
-case the forest owns six trees with depth of tree. The accuracy is stable,
-but the given dataset contains a lot of examples of one kind, resulting an
-advantage for the method.
-
-\begin{figure*}
-\label{fig:adult_standard}
-\centering
-\epsfig{file=training.ps,scale=0.60}
-\epsfig{file=classification.ps,scale=0.60}
-\epsfig{file=nodes.ps,scale=0.60}
-\epsfig{file=memory.ps,scale=0.60}
-\epsfig{file=accuracy.ps,scale=0.60}
-\caption{Running the framework on the Adult dataset classifying over gain
-and ignoring the attributes: fnlwgt and education-num.}
-\end{figure*}
-
-\begin{figure}
-\label{fig:adult-50}
-\centering
-\epsfig{file=training_adult-50.ps,scale=0.60}
-\epsfig{file=nodes_adult-50.ps,scale=0.60}
-\epsfig{file=accuracy_adult-50.ps,scale=0.60}
-\caption{Running the framework on the Adult dataset classifying over gain
-and ignoring the attributes: fnlwgt and education-num with 50 trees.}
-\end{figure}
-
-\begin{figure}
-\label{fig:adult-10}
-\centering
-\epsfig{file=training_adult-10.ps,scale=0.60}
-\epsfig{file=accuracy_adult-10.ps,scale=0.60}
-\caption{Running the framework on the Adult dataset classifying over gain
-and ignoring the attributes: fnlwgt and education-num with 10 trees.}
-\end{figure}
-
-\begin{figure}
-\label{fig:adult-occupation}
-\centering
-\epsfig{file=training_adult-occupation.ps,scale=0.60}
-\epsfig{file=classification_adult-occupation.ps,scale=0.60}
-\epsfig{file=nodes_adult-occupation.ps,scale=0.60}
-\epsfig{file=accuracy_adult-occupation.ps,scale=0.60}
-\caption{Running the framework on the Adult dataset classifying over
-occupation and ignoring the attributes: fnlwgt and education-num.}
-\end{figure}
-
-\begin{figure*}
-\label{fig:training_st_standard}
-\centering
-\epsfig{file=training_training_st.ps,scale=0.60}
-\epsfig{file=classification_training_st.ps,scale=0.60}
-\epsfig{file=nodes_training_st.ps,scale=0.60}
-\epsfig{file=memory_training_st.ps,scale=0.60}
-\epsfig{file=accuracy_training_st.ps,scale=0.60}
-\caption{Running the framework on the Xenon dataset classifying over B/E
-and ignoring the attribute Index.}
-\end{figure*}
-
-\subsection{Improvements}
-There are some improvements that the framework can be submitted.
-The Decision Tree algorithm may be enriched with the possibility to
-calculate also the Gini Index and can be left to user the choice to use 
-one or the other. 
-For the RDT algorithm may be improved in particular the Memory usage. At
-the moment each value that a discrete feature may assume is stored in the
-node growing its dimension. A possible easy solution is to index the child
-as the order of possible values are passed to the software. The advantage
-in memory consumption is considerable.
-
-Another feature to enrich the framework is the option to save the model
-and reload in order to facilitate the study with a bigger structure. In
-the case the Python module ``Pickle'' allows to serialize and de-serialize
-Python object structures converting it in a Byte stream.
-
-The script may be optimized to perform the management of an arbitrary
-number of algorithm and more parameter should be acquired through it.
-
-\section{Conclusions}
-The two algorithms both generate the tree in a similar way and the tests
-conducted on the datasets considered, reveal the efficiency of the solution
-based on the Probability Theory, but without a greater advantage in the
-average. The Random Decision Tree doesn't need particular additional
-calculus except for some simple comparison, whereas the Decision Tree
-founds its job on the Information Gain that require more time.
-
-As confirmed by the tests performed, the number of trees generated in RDT
-influences deeply the time performance of the algorithm. For this reason
-the solution implemented for selecting dynamically this value confirms to
-be an important improvement for this algorithm.
-
-The platform implemented permits to execute experiments with the 
-algorithms working on datasets presenting different characteristics. It
-provides a reliable and sure comparison between the performance obtained
-by the two algorithms.
-
-The measures chosen for the evaluation, permit to notice the trade-off
-among these values. This can be helpful to determine the situation and the
-parameters, which suit better the peculiarities of an algorithm than the
-other.
+* Differences by Nucleus e Secretory good results, altri due no; in Cytoplasm peggiore
+*  
 
 \bibliographystyle{abbrv}
 \bibliography{report}
@@ -796,21 +381,5 @@ other.
 \newpage
 \null
 \newpage
-
-\section*{APPENDIX}
-\begin{figure}[!h]
-\label{fig:training_synt}
-\centering
-\epsfig{file=training_synt.ps,scale=0.60}
-\epsfig{file=classification_synt.ps,scale=0.60}
-\epsfig{file=nodes_synt.ps,scale=0.60}
-\end{figure}
-\begin{figure}[!h]
-\epsfig{file=memory_synt.ps,scale=0.60}
-\epsfig{file=accuracy_synt.ps,scale=0.60}
-\caption{Running the framework on an artificial 
-dataset generated through the tool available on
-\emph{http://www.datasetgenerator.com} classifying over class.}
-\end{figure}
 
 \end{document}
