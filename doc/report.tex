@@ -155,8 +155,7 @@ value for $ \gamma $ is given by the formula \ref{gamma}
 \label{gamma}
 \end{equation}
 
-where the \emph{DSdimension} is the number of samples of the dataset of the
-problems. 
+where the \emph{DSdimension} is the number of samples for training of the dataset. 
 
 
 \subsection{One-vs-All approach}
@@ -164,13 +163,27 @@ The one-vs-all approach method consists to build one tuned SVM for each possible
 location in order maximize the probability of the prediction for given a sample
 in that class.
 
+Once the dataset has been split into the three component, a procedure marks the example
+of the single prediction class in order to be distinguished be all the others that are
+set to be members of another class. In this way the classification is a binary one.
+
+Through the cross validation, the model is trained several time before reaching the
+final set, each time with different parameters that are checked using the validation
+set.
+
 During the validation phase, each single SVM iterate on a defined range of \emph{C} and
 $ \gamma $ looking for that couple that obtain the best performances. Since each
 trainig phase is time expensive, it has been decided to perform a single skim
 of both ranges to find one possible couple and later take a closest range centered
-on that result to finer the research.
+on that result to finer the research. In order to improve the classification in the
+presence of negative points, the \emph{weight} parameter about the penalty of error
+can be set.
 
-Once the 
+Once the model is ready, the testing phase evaluate the quality of the model 
+classifying the samples in the test set. Each element is sent to every SVM which 
+response with a prediction and the relative probability. The output of the program
+is the class, over the four, predicted with the highest probability.
+
 
 \section{SOFTWARE STRUCTURE}
 The language chosen to implement the algorithm is python for its attitude to allow 
@@ -229,7 +242,7 @@ thirty thousand, for which the value expressed by \ref{gamma} is 0.0005.
 In order to face the difficulty of prediction on two problematic locations,
 which are Cytoplasm and Mitochondrion, the parameter \emph{weight} for the
 negative examples was setted to different values, but the best result was 
-obtained with a value equal ten.
+obtained with a value equal ten. 
 
 \section{EXPERIMENTS}
 %Results
@@ -410,8 +423,19 @@ is 60\%;}
 
 
 \section{CONCLUSIONS}
-* Differences by Nucleus e Secretory good results, altri due no; in Cytoplasm peggiore
-*  
+By the several experiments computed it has emerged that two of the four area,
+that are Cytoplasm and Mitochondria, are very difficult to predict. There
+are many causes that lead to lower probability and are about the composition
+of the datasets, which is composed by few examples, the composition of proteins
+that don't have so many features, which lead to a very sparse vector, and finally
+to the misclassification problem due to effective difficulties on determine the 
+differences between proteins at biological composition.
+
+Both Nucleus and Secretory achieve very good results, about the 70\% in most
+cases.
+
+Maybe more finer iterations over the whole range can improve results, but 
+the time consuming algorithm deny the possibility to achieve that target.
 
 \bibliographystyle{abbrv}
 \bibliography{report}
